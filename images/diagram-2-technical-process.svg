@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" font-family="Inter, -apple-system, system-ui, sans-serif">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1e1e1e"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e"/>
+    </marker>
+    <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="950" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="700" y="45" text-anchor="middle" font-size="32" font-weight="700" fill="#1e1e1e">.ai/ — The Complete System</text>
+  <text x="700" y="72" text-anchor="middle" font-size="16" fill="#757575">Five phases. Twelve primitives. Zero code.</text>
+
+  <!-- Phase 1: DEFINE -->
+  <rect x="20" y="100" width="250" height="530" rx="12" fill="#dbe4ff" opacity="0.35" stroke="#4a9eed" stroke-width="1"/>
+  <text x="145" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#4a9eed">1. DEFINE</text>
+  <text x="145" y="152" text-anchor="middle" font-size="13" fill="#757575">What are we building?</text>
+
+  <rect x="40" y="175" width="210" height="60" rx="8" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="145" y="205" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">VISION.md</text>
+  <text x="145" y="222" text-anchor="middle" font-size="11" fill="#475569">product, audience, principles</text>
+
+  <rect x="40" y="255" width="210" height="60" rx="8" fill="#a5d8ff" stroke="#4a9eed" stroke-width="2" filter="url(#shadow)"/>
+  <text x="145" y="285" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">specs/</text>
+  <text x="145" y="302" text-anchor="middle" font-size="11" fill="#475569">requirements, acceptance criteria</text>
+
+  <rect x="40" y="335" width="210" height="50" rx="8" fill="#fff3bf" stroke="#f59e0b" stroke-width="1" filter="url(#shadow)"/>
+  <text x="145" y="363" text-anchor="middle" font-size="14" font-weight="500" fill="#92400e">Quality Rubric (14+/16)</text>
+  <text x="145" y="380" text-anchor="middle" font-size="11" fill="#757575">score before activating</text>
+
+  <!-- Phase 2: CONFIGURE -->
+  <rect x="290" y="100" width="250" height="530" rx="12" fill="#e5dbff" opacity="0.35" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="415" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#8b5cf6">2. CONFIGURE</text>
+  <text x="415" y="152" text-anchor="middle" font-size="13" fill="#757575">How should agents behave?</text>
+
+  <rect x="310" y="175" width="210" height="60" rx="8" fill="#d0bfff" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)"/>
+  <text x="415" y="205" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">AGENTS.md</text>
+  <text x="415" y="222" text-anchor="middle" font-size="11" fill="#475569">rules, conventions, learned failures</text>
+
+  <rect x="310" y="255" width="210" height="60" rx="8" fill="#d0bfff" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)"/>
+  <text x="415" y="285" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">DESIGN.md</text>
+  <text x="415" y="302" text-anchor="middle" font-size="11" fill="#475569">colors, type, spacing, components</text>
+
+  <rect x="310" y="335" width="100" height="50" rx="8" fill="#d0bfff" stroke="#8b5cf6" stroke-width="1" filter="url(#shadow)"/>
+  <text x="360" y="365" text-anchor="middle" font-size="13" font-weight="500" fill="#3b1f8e">STACK</text>
+
+  <rect x="420" y="335" width="100" height="50" rx="8" fill="#d0bfff" stroke="#8b5cf6" stroke-width="1" filter="url(#shadow)"/>
+  <text x="470" y="365" text-anchor="middle" font-size="13" font-weight="500" fill="#3b1f8e">CONTEXT</text>
+
+  <!-- Phase 3: PLAN -->
+  <rect x="560" y="100" width="250" height="530" rx="12" fill="#fff3bf" opacity="0.3" stroke="#f59e0b" stroke-width="1"/>
+  <text x="685" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#d97706">3. PLAN</text>
+  <text x="685" y="152" text-anchor="middle" font-size="13" fill="#757575">How will we build it?</text>
+
+  <rect x="580" y="175" width="210" height="60" rx="8" fill="#ffd8a8" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+  <text x="685" y="205" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">plans/</text>
+  <text x="685" y="222" text-anchor="middle" font-size="11" fill="#475569">agent proposes, operator annotates</text>
+
+  <rect x="580" y="255" width="210" height="60" rx="8" fill="#ffd8a8" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+  <text x="685" y="285" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">decisions/</text>
+  <text x="685" y="302" text-anchor="middle" font-size="11" fill="#475569">why we chose X over Y</text>
+
+  <rect x="580" y="335" width="210" height="50" rx="8" fill="#ffd8a8" stroke="#f59e0b" stroke-width="1" filter="url(#shadow)"/>
+  <text x="685" y="365" text-anchor="middle" font-size="13" font-weight="500" fill="#92400e">amendments (mid-flight)</text>
+
+  <!-- Phase 4: BUILD -->
+  <rect x="830" y="100" width="250" height="530" rx="12" fill="#d3f9d8" opacity="0.35" stroke="#22c55e" stroke-width="1"/>
+  <text x="955" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#22c55e">4. BUILD</text>
+  <text x="955" y="152" text-anchor="middle" font-size="13" fill="#757575">Agent implements code</text>
+
+  <rect x="850" y="175" width="210" height="60" rx="8" fill="#b2f2bb" stroke="#22c55e" stroke-width="2" filter="url(#shadow)"/>
+  <text x="955" y="205" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">skills/</text>
+  <text x="955" y="222" text-anchor="middle" font-size="11" fill="#475569">new-feature, bug-fix, resume, refactor</text>
+
+  <rect x="850" y="255" width="210" height="60" rx="8" fill="#b2f2bb" stroke="#22c55e" stroke-width="2" filter="url(#shadow)"/>
+  <text x="955" y="285" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">progress/</text>
+  <text x="955" y="302" text-anchor="middle" font-size="11" fill="#475569">session logs with checkpoints</text>
+
+  <rect x="850" y="335" width="210" height="50" rx="8" fill="#b2f2bb" stroke="#22c55e" stroke-width="1" filter="url(#shadow)"/>
+  <text x="955" y="365" text-anchor="middle" font-size="13" font-weight="500" fill="#15803d">retrospectives/</text>
+
+  <!-- Phase 5: GUARD -->
+  <rect x="1100" y="100" width="250" height="530" rx="12" fill="#ffc9c9" opacity="0.25" stroke="#ef4444" stroke-width="1"/>
+  <text x="1225" y="130" text-anchor="middle" font-size="22" font-weight="700" fill="#ef4444">5. GUARD</text>
+  <text x="1225" y="152" text-anchor="middle" font-size="13" fill="#757575">What must pass to ship?</text>
+
+  <rect x="1120" y="175" width="210" height="60" rx="8" fill="#ffc9c9" stroke="#ef4444" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1225" y="205" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">CHECKLIST.md</text>
+  <text x="1225" y="222" text-anchor="middle" font-size="11" fill="#475569">lint, typecheck, tests, security</text>
+
+  <rect x="1120" y="255" width="210" height="60" rx="8" fill="#ffc9c9" stroke="#ef4444" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1225" y="285" text-anchor="middle" font-size="17" font-weight="600" fill="#1e1e1e">BOUNDARIES.md</text>
+  <text x="1225" y="302" text-anchor="middle" font-size="11" fill="#475569">hard limits on agent autonomy</text>
+
+  <rect x="1120" y="335" width="210" height="50" rx="8" fill="#ffc9c9" stroke="#ef4444" stroke-width="1" filter="url(#shadow)"/>
+  <text x="1225" y="365" text-anchor="middle" font-size="13" font-weight="500" fill="#991b1b">CONCURRENCY.md</text>
+
+  <!-- Flow arrows between phases -->
+  <line x1="270" y1="205" x2="290" y2="205" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="540" y1="205" x2="560" y2="205" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="810" y1="205" x2="830" y2="205" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1080" y1="205" x2="1100" y2="205" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Feedback loops section -->
+  <text x="400" y="680" text-anchor="middle" font-size="18" font-weight="700" fill="#1e1e1e">FEEDBACK LOOPS</text>
+
+  <!-- Feedback 1: Failures → AGENTS.md -->
+  <path d="M 1225 450 Q 1225 710 415 710" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="8 4" marker-end="url(#arrow-purple)"/>
+  <rect x="700" y="693" width="340" height="28" rx="6" fill="white" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="870" y="712" text-anchor="middle" font-size="13" fill="#8b5cf6">agent failures become AGENTS.md learned rules</text>
+
+  <!-- Feedback 2: Retros → Specs -->
+  <path d="M 955 450 Q 955 770 145 770" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="8 4" marker-end="url(#arrow-amber)"/>
+  <rect x="440" y="753" width="290" height="28" rx="6" fill="white" stroke="#f59e0b" stroke-width="1"/>
+  <text x="585" y="772" text-anchor="middle" font-size="13" fill="#d97706">retrospectives improve specs + rubric</text>
+
+  <!-- Feedback 3: Checkpoints -->
+  <path d="M 960 320 L 960 415 Q 960 430 950 430 L 870 430" stroke="#22c55e" stroke-width="2" fill="none" stroke-dasharray="6 3" marker-end="url(#arrow-green)"/>
+  <text x="895" y="448" text-anchor="middle" font-size="12" fill="#22c55e">checkpoints enable resume</text>
+
+  <!-- Footer -->
+  <text x="700" y="860" text-anchor="middle" font-size="20" font-weight="500" fill="#1e1e1e">Everything is version-controlled markdown. Agent-agnostic. Zero SaaS.</text>
+</svg>

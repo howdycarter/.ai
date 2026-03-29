@@ -1,0 +1,7 @@
+---
+globs: src/components/**/*.tsx
+---
+Follow `.ai/DESIGN.md` for all visual decisions.
+One component per file. Named exports only.
+Handle all states: loading, empty, error, populated.
+Tailwind only. No inline styles. No CSS modules.

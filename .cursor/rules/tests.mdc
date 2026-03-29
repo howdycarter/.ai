@@ -1,0 +1,6 @@
+---
+globs: **/*.test.ts,**/*.test.tsx
+---
+Every feature needs 3 tests: happy path, error/edge case, empty state.
+Test behavior, not implementation.
+Mock external services, never hit real databases.
