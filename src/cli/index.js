@@ -211,37 +211,7 @@ async function init(options) {
 
 function doctor(options) {
   const root = resolveRoot(options);
-  const failures = [];
-  const manifestPath = path.join(root, '.ai/manifest.json');
-
-  if (!fs.existsSync(manifestPath)) {
-    return fail('Missing .ai/manifest.json\n');
-  }
-
-  let manifest;
-  try {
-    manifest = readJson(manifestPath);
-  } catch (error) {
-    return fail(`Invalid .ai/manifest.json: ${error.message}\n`);
-  }
-
-  for (const field of ['schemaVersion', 'projectName', 'createdAt', 'primitives', 'adapters', 'guards', 'activeWork']) {
-    if (manifest[field] === undefined) {
-      failures.push(`Missing manifest field: ${field}`);
-    }
-  }
-
-  for (const file of CORE_FILES) {
-    if (!fs.existsSync(path.join(root, file))) {
-      failures.push(`Missing ${file}`);
-    }
-  }
-
-  for (const dir of CORE_DIRS) {
-    if (!fs.existsSync(path.join(root, dir))) {
-      failures.push(`Missing ${dir}`);
-    }
-  }
+  const { manifest, failures } = inspectProject(root);
 
   if (failures.length > 0) {
     return fail(`${failures.join('\n')}\n`);
@@ -252,17 +222,35 @@ function doctor(options) {
 
 function status(options) {
   const root = resolveRoot(options);
+  const { failures } = inspectProject(root);
   const activeSpecs = listMarkdown(path.join(root, '.ai/specs/active'));
   const plans = listMarkdown(path.join(root, '.ai/plans'));
   const progress = listMarkdown(path.join(root, '.ai/progress')).slice(-3);
+  const storySummary = summarizeStories(root);
+  const proofSummary = summarizeProofRuns(root);
+  const nextAction = recommendNextAction(activeSpecs, storySummary);
+  const blockers = [
+    ...failures.slice(0, 3),
+    ...(proofSummary.unscored.length ? [`Unscored proof runs: ${proofSummary.unscored.join(', ')}`] : []),
+    ...(proofSummary.invalid.length ? [`Invalid proof runs: ${proofSummary.invalid.join(', ')}`] : []),
+  ];
 
   return ok([
     '# .ai Status',
     '',
+    `Doctor: ${failures.length ? `invalid (${failures[0]})` : 'valid'}`,
     `Active specs: ${activeSpecs.length}`,
     `Plans: ${plans.length}`,
+    `Stories: ready ${storySummary.counts.ready}, in-progress ${storySummary.counts['in-progress']}, review ${storySummary.counts.review}, done ${storySummary.counts.done}`,
+    `Proof runs: total ${proofSummary.total}, scored ${proofSummary.scored.length}, unscored ${proofSummary.unscored.length}`,
     `Recent progress entries: ${progress.length}`,
     '',
+    `Next action: ${nextAction}`,
+    '',
+    'Blockers:',
+    blockers.length ? blockers.map((blocker) => `- ${blocker}`).join('\n') : '- None detected.',
+    '',
+    'Active specs:',
     activeSpecs.length ? activeSpecs.map((spec) => `- ${spec}`).join('\n') : 'No active specs found.',
     '',
   ].join('\n'));
@@ -313,6 +301,9 @@ function share(options) {
 
 function prove(options) {
   const scenarioName = options._[0];
+  if (scenarioName === 'auto') {
+    return autoProof(options);
+  }
   if (scenarioName === 'score') {
     return scoreProofRun(options);
   }
@@ -350,6 +341,74 @@ function prove(options) {
   return ok(`Created proof run: ${outDir}\n`);
 }
 
+function autoProof(options) {
+  const scenarioName = options._[1];
+  const command = options.command;
+  const baselineDirArg = options['baseline-dir'];
+  const candidateDirArg = options['candidate-dir'];
+
+  if (!scenarioName || !command || !baselineDirArg || !candidateDirArg) {
+    return fail('Usage: dot-ai prove auto <scenario> --baseline-dir <dir> --candidate-dir <dir> --command <command> --out <dir>\n');
+  }
+
+  const root = resolveRoot(options);
+  const baselineDir = path.resolve(root, baselineDirArg);
+  const candidateDir = path.resolve(root, candidateDirArg);
+  for (const [label, dirPath] of [
+    ['baseline', baselineDir],
+    ['candidate', candidateDir],
+  ]) {
+    if (!fs.existsSync(dirPath)) {
+      return fail(`Missing ${label} directory: ${dirPath}\n`);
+    }
+  }
+
+  const scenariosRoot = path.resolve(options['scenarios-dir'] || path.join(__dirname, '..', '..', 'scenarios'));
+  const scenarioDir = path.join(scenariosRoot, scenarioName);
+  const outDir = path.resolve(root, options.out || path.join('proof-runs', scenarioName));
+  const scenario = loadProofScenario(scenarioDir, scenarioName);
+
+  if (scenario.error) {
+    return fail(scenario.error);
+  }
+
+  const refs = {
+    baseline: options.baseline || 'baseline',
+    candidate: options.candidate || 'candidate',
+  };
+  const verdictPath = path.join(outDir, 'verdict.json');
+  const verdict = fs.existsSync(verdictPath)
+    ? readJson(verdictPath)
+    : createProofVerdict(scenarioName, refs, scenario.acceptance, scenario.rubric);
+  const preservedCommands = Array.isArray(verdict.commands)
+    ? verdict.commands.filter((entry) => !['baseline', 'candidate'].includes(entry.ref) && !/^Record .* command/.test(entry.command || ''))
+    : [];
+  verdict.commands = [
+    ...preservedCommands,
+    captureCommandEvidence(command, 'baseline', baselineDir),
+    captureCommandEvidence(command, 'candidate', candidateDir),
+  ];
+
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, 'prompt.md'), scenario.prompt);
+  fs.writeFileSync(path.join(outDir, 'acceptance.md'), scenario.acceptanceMarkdown);
+  fs.writeFileSync(path.join(outDir, 'rubric.json'), `${JSON.stringify(scenario.rubric, null, 2)}\n`);
+  fs.writeFileSync(verdictPath, `${JSON.stringify(verdict, null, 2)}\n`);
+  fs.writeFileSync(path.join(outDir, 'build-report.md'), proofBuildReport(verdict, scenario.prompt));
+
+  const lines = [
+    `Created proof run: ${outDir}`,
+    `Recorded baseline command: ${verdict.commands[0].status}`,
+    `Recorded candidate command: ${verdict.commands[1].status}`,
+    '',
+  ].join('\n');
+
+  if (verdict.commands.some((entry) => entry.status === 'fail')) {
+    return fail(lines);
+  }
+  return ok(lines);
+}
+
 function runProofCommand(options) {
   const runDirArg = options._[1];
   const command = options.command;
@@ -373,34 +432,17 @@ function runProofCommand(options) {
     return fail(`Invalid proof run verdict: ${error.message}\n`);
   }
 
-  const startedAt = new Date();
-  const result = spawnSync(command, {
-    cwd: options.cwd ? path.resolve(root, options.cwd) : root,
-    encoding: 'utf8',
-    shell: true,
-  });
-  const durationMs = Date.now() - startedAt.getTime();
-  const exitCode = typeof result.status === 'number' ? result.status : 1;
-  const entry = {
-    ref,
-    command,
-    status: exitCode === 0 ? 'pass' : 'fail',
-    exitCode,
-    durationMs,
-    startedAt: startedAt.toISOString(),
-    stdout: trimCommandOutput(result.stdout || ''),
-    stderr: trimCommandOutput(result.stderr || result.error?.message || ''),
-  };
+  const entry = captureCommandEvidence(command, ref, options.cwd ? path.resolve(root, options.cwd) : root);
 
   verdict.commands = Array.isArray(verdict.commands)
     ? [...verdict.commands.filter((item) => !/^Record .* command/.test(item.command)), entry]
     : [entry];
   fs.writeFileSync(verdictPath, `${JSON.stringify(verdict, null, 2)}\n`);
 
-  if (exitCode === 0) {
+  if (entry.exitCode === 0) {
     return ok(`Recorded proof command: ${command}\n`);
   }
-  return fail(`Proof command failed (${exitCode}): ${command}\n`);
+  return fail(`Proof command failed (${entry.exitCode}): ${command}\n`);
 }
 
 function scoreProofRun(options) {
@@ -452,8 +494,10 @@ function story(options) {
       return validateStoryCommand(options);
     case 'done':
       return completeStory(options);
+    case 'next':
+      return nextStory(options);
     default:
-      return fail('Usage: dot-ai story <create|validate|done>\n');
+      return fail('Usage: dot-ai story <create|validate|done|next>\n');
   }
 }
 
@@ -552,6 +596,29 @@ function completeStory(options) {
   return ok(`Completed story: ${donePath}\n`);
 }
 
+function nextStory(options) {
+  const root = resolveRoot(options);
+  const storySummary = summarizeStories(root);
+  for (const state of ['in-progress', 'review', 'ready']) {
+    const fileName = storySummary.files[state][0];
+    if (fileName) {
+      const storyPath = path.join(root, '.ai/stories', state, fileName);
+      return ok([
+        `Next story: ${fileName}`,
+        `Status: ${state}`,
+        `Path: ${storyPath}`,
+        '',
+      ].join('\n'));
+    }
+  }
+
+  const activeSpec = listMarkdown(path.join(root, '.ai/specs/active'))[0];
+  if (activeSpec) {
+    return ok(`No stories found. Next action: create a story from active spec ${activeSpec}\n`);
+  }
+  return ok('No stories found. Next action: use .ai/skills/interview.md to create an active spec.\n');
+}
+
 function installPack(options) {
   const packName = options._[0];
   const root = resolveRoot(options);
@@ -619,6 +686,125 @@ function validateStoryContent(content) {
   }
 
   return findings;
+}
+
+function inspectProject(root) {
+  const failures = [];
+  const manifestPath = path.join(root, '.ai/manifest.json');
+
+  if (!fs.existsSync(manifestPath)) {
+    return { manifest: null, failures: ['Missing .ai/manifest.json'] };
+  }
+
+  let manifest;
+  try {
+    manifest = readJson(manifestPath);
+  } catch (error) {
+    return { manifest: null, failures: [`Invalid .ai/manifest.json: ${error.message}`] };
+  }
+
+  for (const field of ['schemaVersion', 'projectName', 'createdAt', 'primitives', 'adapters', 'guards', 'activeWork']) {
+    if (manifest[field] === undefined) {
+      failures.push(`Missing manifest field: ${field}`);
+    }
+  }
+
+  for (const file of CORE_FILES) {
+    if (!fs.existsSync(path.join(root, file))) {
+      failures.push(`Missing ${file}`);
+    }
+  }
+
+  for (const dir of CORE_DIRS) {
+    if (!fs.existsSync(path.join(root, dir))) {
+      failures.push(`Missing ${dir}`);
+    }
+  }
+
+  return { manifest, failures };
+}
+
+function summarizeStories(root) {
+  const files = {
+    ready: storyFiles(root, 'ready'),
+    'in-progress': storyFiles(root, 'in-progress'),
+    review: storyFiles(root, 'review'),
+    done: storyFiles(root, 'done'),
+  };
+  return {
+    files,
+    counts: Object.fromEntries(Object.entries(files).map(([state, stateFiles]) => [state, stateFiles.length])),
+  };
+}
+
+function storyFiles(root, state) {
+  return listMarkdown(path.join(root, '.ai/stories', state)).filter((fileName) => !fileName.startsWith('_'));
+}
+
+function summarizeProofRuns(root) {
+  const proofRoot = path.join(root, 'proof-runs');
+  const summary = { total: 0, scored: [], unscored: [], invalid: [] };
+  if (!fs.existsSync(proofRoot)) {
+    return summary;
+  }
+
+  for (const name of fs.readdirSync(proofRoot).sort()) {
+    const verdictPath = path.join(proofRoot, name, 'verdict.json');
+    if (!fs.existsSync(verdictPath)) {
+      continue;
+    }
+    summary.total += 1;
+    try {
+      const verdict = readJson(verdictPath);
+      if (incompleteProofFindings(verdict).length > 0) {
+        summary.unscored.push(name);
+      } else {
+        summary.scored.push(name);
+      }
+    } catch {
+      summary.invalid.push(name);
+    }
+  }
+
+  return summary;
+}
+
+function recommendNextAction(activeSpecs, storySummary) {
+  if (storySummary.files['in-progress'][0]) {
+    return `Finish in-progress story ${storySummary.files['in-progress'][0]}`;
+  }
+  if (storySummary.files.review[0]) {
+    return `Review story ${storySummary.files.review[0]}`;
+  }
+  if (storySummary.files.ready[0]) {
+    return `Implement ready story ${storySummary.files.ready[0]}`;
+  }
+  if (activeSpecs[0]) {
+    return `Create an implementation story or plan for active spec ${activeSpecs[0]}`;
+  }
+  return 'Use .ai/skills/interview.md to turn the next rough idea into an active spec.';
+}
+
+function captureCommandEvidence(command, ref, cwd) {
+  const startedAt = new Date();
+  const result = spawnSync(command, {
+    cwd,
+    encoding: 'utf8',
+    shell: true,
+  });
+  const durationMs = Date.now() - startedAt.getTime();
+  const exitCode = typeof result.status === 'number' ? result.status : 1;
+  return {
+    ref,
+    command,
+    cwd,
+    status: exitCode === 0 ? 'pass' : 'fail',
+    exitCode,
+    durationMs,
+    startedAt: startedAt.toISOString(),
+    stdout: trimCommandOutput(result.stdout || ''),
+    stderr: trimCommandOutput(result.stderr || result.error?.message || ''),
+  };
 }
 
 function trimCommandOutput(output) {
@@ -904,7 +1090,23 @@ async function run(argv) {
       return fail('Usage: dot-ai pack install <pack>\n');
     case 'help':
     case undefined:
-      return ok('Usage: dot-ai <init|doctor|status|score|story|prove|share|pack|conformance>\n');
+      return ok([
+        'Usage: dot-ai <command>',
+        '',
+        'Commands:',
+        '  init                         Create a .ai directory',
+        '  doctor | conformance         Validate the .ai project shape',
+        '  status                       Show active specs, stories, proof runs, blockers, and next action',
+        '  score <spec>                 Score spec/artifact readiness',
+        '  story create|validate|done|next',
+        '  prove <scenario>             Create a proof run',
+        '  prove run <dir>              Record one command as proof evidence',
+        '  prove auto <scenario>        Record the same command against baseline and candidate dirs',
+        '  prove score <dir>            Score a completed proof run',
+        '  share                        Generate .ai/build-report.md',
+        '  pack install <pack>          Install a workflow pack',
+        '',
+      ].join('\n'));
     default:
       return fail(`Unknown command: ${command}\n`);
   }

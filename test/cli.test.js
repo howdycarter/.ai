@@ -322,6 +322,173 @@ describe('dot-ai CLI', () => {
     assert.match(done.stderr, /Story is not complete enough to mark done/);
   });
 
+  it('reports actionable status with story and proof run state', async () => {
+    const root = makeTempProject('status-rich');
+    await run(['init', '--dir', root, '--yes']);
+    writeFile(path.join(root, '.ai', 'specs', 'active', 'checkout.md'), '# Spec: Checkout\n');
+    writeFile(path.join(root, '.ai', 'stories', 'ready', 'checkout-total.md'), [
+      '# Story: Checkout total',
+      '',
+      '**Status:** ready',
+      '**Spec:** .ai/specs/active/checkout.md',
+      '',
+      '## Acceptance criteria',
+      '- [ ] GIVEN items in cart, WHEN totals render, THEN tax and total are correct.',
+      '',
+      '## Implementation notes',
+      '- Update checkout summary.',
+    ].join('\n'));
+    await run(['prove', 'invoice-app', '--dir', root, '--out', path.join(root, 'proof-runs', 'invoice-app')]);
+
+    const result = await run(['status', '--dir', root]);
+
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /Doctor: valid/);
+    assert.match(result.stdout, /Stories: ready 1, in-progress 0, review 0, done 0/);
+    assert.match(result.stdout, /Proof runs: total 1, scored 0, unscored 1/);
+    assert.match(result.stdout, /Next action: Implement ready story checkout-total\.md/);
+    assert.match(result.stdout, /Blockers/);
+    assert.match(result.stdout, /Unscored proof runs: invoice-app/);
+  });
+
+  it('selects the next story by lifecycle priority', async () => {
+    const root = makeTempProject('story-next');
+    await run(['init', '--dir', root, '--yes']);
+    writeFile(path.join(root, '.ai', 'stories', 'ready', 'ready-story.md'), [
+      '# Story: Ready story',
+      '',
+      '**Status:** ready',
+      '**Spec:** .ai/specs/active/demo.md',
+      '',
+      '## Acceptance criteria',
+      '- [ ] GIVEN ready work, WHEN selected, THEN it can be implemented.',
+      '',
+      '## Implementation notes',
+      '- Ready notes.',
+    ].join('\n'));
+    writeFile(path.join(root, '.ai', 'stories', 'in-progress', 'active-story.md'), [
+      '# Story: Active story',
+      '',
+      '**Status:** in-progress',
+      '**Spec:** .ai/specs/active/demo.md',
+      '',
+      '## Acceptance criteria',
+      '- [ ] GIVEN active work, WHEN selected, THEN it is finished first.',
+      '',
+      '## Implementation notes',
+      '- Active notes.',
+    ].join('\n'));
+
+    const result = await run(['story', 'next', '--dir', root]);
+
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /Next story: active-story\.md/);
+    assert.match(result.stdout, /Status: in-progress/);
+    assert.match(result.stdout, /Path: .*active-story\.md/);
+  });
+
+  it('captures baseline and candidate proof commands with prove auto', async () => {
+    const root = makeTempProject('prove-auto');
+    const baselineDir = path.join(root, 'baseline');
+    const candidateDir = path.join(root, 'candidate');
+    const out = path.join(root, 'proof-runs', 'invoice-app');
+    fs.mkdirSync(baselineDir, { recursive: true });
+    fs.mkdirSync(candidateDir, { recursive: true });
+
+    const result = await run([
+      'prove',
+      'auto',
+      'invoice-app',
+      '--dir',
+      root,
+      '--out',
+      out,
+      '--baseline-dir',
+      baselineDir,
+      '--candidate-dir',
+      candidateDir,
+      '--command',
+      `${process.execPath} -e "process.stdout.write(process.cwd())"`,
+    ]);
+    const verdict = JSON.parse(fs.readFileSync(path.join(out, 'verdict.json'), 'utf8'));
+
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /Created proof run/);
+    assert.match(result.stdout, /Recorded baseline command/);
+    assert.match(result.stdout, /Recorded candidate command/);
+    assert.equal(verdict.commands.length, 2);
+    assert.equal(verdict.commands[0].ref, 'baseline');
+    assert.equal(verdict.commands[0].status, 'pass');
+    assert.equal(verdict.commands[1].ref, 'candidate');
+    assert.equal(verdict.commands[1].status, 'pass');
+    assert.match(verdict.commands[0].stdout, /baseline/);
+    assert.match(verdict.commands[1].stdout, /candidate/);
+  });
+
+  it('preserves existing proof verdict fields when prove auto records command evidence', async () => {
+    const root = makeTempProject('prove-auto-preserve');
+    const baselineDir = path.join(root, 'baseline');
+    const candidateDir = path.join(root, 'candidate');
+    const out = path.join(root, 'proof-runs', 'invoice-app');
+    fs.mkdirSync(baselineDir, { recursive: true });
+    fs.mkdirSync(candidateDir, { recursive: true });
+    await run(['prove', 'invoice-app', '--dir', root, '--out', out]);
+
+    const verdictPath = path.join(out, 'verdict.json');
+    const verdict = JSON.parse(fs.readFileSync(verdictPath, 'utf8'));
+    verdict.verdict = 'Manual product verdict should remain intact.';
+    verdict.rework.candidate.push('One clarification loop.');
+    fs.writeFileSync(verdictPath, `${JSON.stringify(verdict, null, 2)}\n`);
+
+    const result = await run([
+      'prove',
+      'auto',
+      'invoice-app',
+      '--dir',
+      root,
+      '--out',
+      out,
+      '--baseline-dir',
+      baselineDir,
+      '--candidate-dir',
+      candidateDir,
+      '--command',
+      `${process.execPath} -e "process.stdout.write('ok')"`,
+    ]);
+    const updated = JSON.parse(fs.readFileSync(verdictPath, 'utf8'));
+
+    assert.equal(result.code, 0);
+    assert.equal(updated.verdict, 'Manual product verdict should remain intact.');
+    assert.deepEqual(updated.rework.candidate, ['One clarification loop.']);
+    assert.equal(updated.commands.length, 2);
+    assert.equal(updated.commands.every((entry) => entry.status === 'pass'), true);
+  });
+
+  it('keeps the npm package publish-ready', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
+
+    assert.equal(pkg.name, 'dot-ai');
+    assert.equal(pkg.bin['dot-ai'], 'src/cli/index.js');
+    assert.equal(pkg.repository.url, 'git+https://github.com/howdycarter/.ai.git');
+    assert.equal(pkg.bugs.url, 'https://github.com/howdycarter/.ai/issues');
+    assert.equal(pkg.homepage, 'https://github.com/howdycarter/.ai#readme');
+    assert.deepEqual(pkg.files.sort(), [
+      'LICENSE',
+      'README.md',
+      'docs/*.md',
+      'examples/proof-apps',
+      'images',
+      'registry',
+      'scenarios',
+      'schemas',
+      'setup.sh',
+      'spec.ai.md',
+      'src',
+    ].sort());
+    assert.equal(pkg.scripts.quality, 'npm test && node src/cli/index.js doctor && npm run pack:dry-run');
+    assert.equal(pkg.scripts['pack:dry-run'], 'npm pack --dry-run');
+  });
+
   it('records proof command evidence into verdict data', async () => {
     const root = makeTempProject('prove-run-command');
     const out = path.join(root, 'proof-runs', 'invoice-app');

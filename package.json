@@ -3,13 +3,36 @@
   "version": "0.1.0",
   "description": "The open standard for repo-native AI development context.",
   "license": "MIT",
+  "homepage": "https://github.com/howdycarter/.ai#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/howdycarter/.ai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/howdycarter/.ai/issues"
+  },
   "bin": {
     "dot-ai": "src/cli/index.js"
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "dot-ai": "node src/cli/index.js"
+    "dot-ai": "node src/cli/index.js",
+    "quality": "npm test && node src/cli/index.js doctor && npm run pack:dry-run",
+    "pack:dry-run": "npm pack --dry-run"
   },
+  "files": [
+    "src",
+    "schemas",
+    "scenarios",
+    "registry",
+    "docs/*.md",
+    "examples/proof-apps",
+    "images",
+    "setup.sh",
+    "spec.ai.md",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "ai",
     "agents",

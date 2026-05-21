@@ -13,14 +13,16 @@ The next step is the **.ai Standard v0.1**: a founder-led open standard for repo
 The product claim is proof-first, not hype-first. `dot-ai prove` creates a structured A/B proof run so teams can compare a baseline workflow against `.ai`, record the same prompt, score the final product outcome, and publish a public-safe build report only when the evidence is strong.
 
 ```bash
-npx dot-ai init
-npx dot-ai doctor
-npx dot-ai status
-npx dot-ai story create invoice-totals --spec .ai/specs/active/invoice-app.md
-npx dot-ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
-npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD
-npx dot-ai share
+npx github:howdycarter/.ai init
+npx github:howdycarter/.ai doctor
+npx github:howdycarter/.ai status
+npx github:howdycarter/.ai story next
+npx github:howdycarter/.ai prove auto invoice-app --baseline-dir ../old-build --candidate-dir ../new-build --command "npm test"
+npx github:howdycarter/.ai share
 ```
+
+After the first npm release, replace `npx github:howdycarter/.ai` with
+`npx dot-ai`.
 
 Badges this standard enables:
 
@@ -196,9 +198,10 @@ version:
 `.ai` does not ask people to believe that more structure magically builds better software. It creates proof runs that can be inspected, repeated, and shared.
 
 ```bash
-npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD --out proof-runs/invoice-app
-npx dot-ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
-npx dot-ai prove score proof-runs/invoice-app
+npx github:howdycarter/.ai prove invoice-app --baseline origin/main --candidate HEAD --out proof-runs/invoice-app
+npx github:howdycarter/.ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
+npx github:howdycarter/.ai prove auto invoice-app --baseline-dir ../old-build --candidate-dir ../new-build --command "npm test"
+npx github:howdycarter/.ai prove score proof-runs/invoice-app
 ```
 
 The first canonical scenarios are:
@@ -274,9 +277,18 @@ cd .ai
 ### Option B: Reference CLI
 
 ```bash
-npx dot-ai init --dir /path/to/your/project --yes
-npx dot-ai doctor --dir /path/to/your/project
-npx dot-ai status --dir /path/to/your/project
+npx github:howdycarter/.ai init --dir /path/to/your/project --yes
+npx github:howdycarter/.ai doctor --dir /path/to/your/project
+npx github:howdycarter/.ai status --dir /path/to/your/project
+```
+
+The package is configured for npm publication as `dot-ai`, but the public npm
+package should not be treated as available until a release is published.
+Maintainers can verify release readiness with:
+
+```bash
+npm run quality
+npm publish --dry-run
 ```
 
 ### Option C: Manual setup
@@ -391,6 +403,10 @@ examples, docs, and standard changes through RFCs.
 ## Full guide
 
 The complete 10,000-word methodology — with filled-in examples for every primitive — lives at [`docs/GUIDE.md`](docs/GUIDE.md). It walks through each primitive with production-quality examples showing what real `.ai/` files look like: a VISION.md with principles that guide agent micro-decisions, a DESIGN.md with a full visual system, an AGENTS.md with learned rules from actual failures, a complete spec with GIVEN/WHEN/THEN criteria, an approved plan with operator annotations, and a progress file with a checkpoint for session resumption.
+
+For the direct BMAD comparison and proof-first roadmap, read
+[`docs/BMAD-COMPARISON.md`](docs/BMAD-COMPARISON.md). For running actual
+old-vs-new product proof builds, read [`docs/PROOF-LAB.md`](docs/PROOF-LAB.md).
 
 ---
 
