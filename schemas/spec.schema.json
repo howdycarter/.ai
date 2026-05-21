@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/spec-0.1.0.schema.json",
+  "title": ".ai Spec Metadata",
+  "type": "object",
+  "required": [
+    "title",
+    "status",
+    "priority",
+    "complexity",
+    "created",
+    "updated"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "active",
+        "in-progress",
+        "review",
+        "completed",
+        "rejected"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "p0-critical",
+        "p1-high",
+        "p2-medium",
+        "p3-low"
+      ]
+    },
+    "complexity": {
+      "enum": [
+        "small",
+        "medium",
+        "large",
+        "xl"
+      ]
+    },
+    "created": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string"
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16
+    }
+  }
+}

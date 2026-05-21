@@ -1,0 +1,43 @@
+{
+  "name": "Habit Tracker Proof Rubric",
+  "version": "0.1.0",
+  "timeBudgetMinutes": 90,
+  "dimensions": [
+    {
+      "id": "spec-completeness",
+      "label": "Spec captures user motivation, core loop, states, and exclusions",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "plan-executability",
+      "label": "Plan turns the behavior into implementable screens and state",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "acceptance-coverage",
+      "label": "Final app satisfies the acceptance criteria",
+      "group": "finalOutcome",
+      "weight": 5
+    },
+    {
+      "id": "daily-ergonomics",
+      "label": "Daily check-in is fast, calm, and hard to misuse",
+      "group": "finalOutcome",
+      "weight": 4
+    },
+    {
+      "id": "emotional-fit",
+      "label": "Product tone supports recovery without shame or noise",
+      "group": "finalOutcome",
+      "weight": 3
+    },
+    {
+      "id": "rework-cost",
+      "label": "Build required fewer clarification loops and manual fixes",
+      "group": "finalOutcome",
+      "weight": 3
+    }
+  ]
+}

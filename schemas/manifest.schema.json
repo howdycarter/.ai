@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/manifest-0.1.0.schema.json",
+  "title": ".ai Manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "projectName",
+    "createdAt",
+    "primitives",
+    "adapters",
+    "guards",
+    "activeWork"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "standardVersion": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "primitives": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "$ref": "#/$defs/pathEntry"
+      }
+    },
+    "adapters": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/adapter"
+      }
+    },
+    "guards": {
+      "type": "object",
+      "required": [
+        "checklist",
+        "commands"
+      ],
+      "properties": {
+        "checklist": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "activeWork": {
+      "type": "object",
+      "required": [
+        "specs",
+        "plans",
+        "progress",
+        "buildReport"
+      ],
+      "properties": {
+        "specs": {
+          "type": "string"
+        },
+        "plans": {
+          "type": "string"
+        },
+        "progress": {
+          "type": "string"
+        },
+        "buildReport": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "pathEntry": {
+      "type": "object",
+      "required": [
+        "name",
+        "path",
+        "required"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "required": [
+        "name",
+        "path",
+        "enabled"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

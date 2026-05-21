@@ -6,12 +6,14 @@
      Do not wait for the operator to ask. Start onboarding now. -->
 
 ## On session start
-1. If VISION.md contains "{Project Name}" → run .ai/skills/onboard.md
-2. Otherwise → check .ai/progress/ for the latest checkpoint
-3. Load context per .ai/CONTEXT.md for the current task type
+1. Read .ai/manifest.json
+2. If VISION.md contains "{Project Name}" → run .ai/skills/onboard.md
+3. Otherwise → check .ai/progress/ for the latest checkpoint
+4. Load context per .ai/CONTEXT.md for the current task type
 
 ## Critical rules (always in memory)
 - Read `.ai/AGENTS.md` for full instructions. All context in `.ai/`.
+- Use `.ai/skills/help.md` when the next action is unclear.
 - NEVER implement without an approved plan in `.ai/plans/`.
 - Run typecheck and lint after every change.
 

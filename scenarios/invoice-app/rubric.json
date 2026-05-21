@@ -1,0 +1,43 @@
+{
+  "name": "Invoice App Proof Rubric",
+  "version": "0.1.0",
+  "timeBudgetMinutes": 90,
+  "dimensions": [
+    {
+      "id": "spec-completeness",
+      "label": "Spec identifies actors, workflow, data, and exclusions",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "plan-executability",
+      "label": "Plan can be executed by an agent without guessing product intent",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "acceptance-coverage",
+      "label": "Final app satisfies the acceptance criteria",
+      "group": "finalOutcome",
+      "weight": 5
+    },
+    {
+      "id": "workflow-usability",
+      "label": "Invoice workflow is clear for a real freelancer",
+      "group": "finalOutcome",
+      "weight": 4
+    },
+    {
+      "id": "financial-care",
+      "label": "Totals, statuses, and real-money caveats are handled responsibly",
+      "group": "finalOutcome",
+      "weight": 4
+    },
+    {
+      "id": "rework-cost",
+      "label": "Build required fewer clarification loops and manual fixes",
+      "group": "finalOutcome",
+      "weight": 3
+    }
+  ]
+}

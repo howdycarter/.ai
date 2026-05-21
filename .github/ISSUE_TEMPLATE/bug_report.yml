@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a problem with the .ai standard, templates, CLI, or docs
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include commands, files, and expected versus actual behavior.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: .ai version
+      description: Standard or CLI version, if known.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, AI tool, and repo shape.

@@ -2,6 +2,6 @@
 globs: **/*
 ---
 If `.ai/VISION.md` contains placeholder text, run `.ai/skills/onboard.md` first.
-Otherwise: read `.ai/AGENTS.md` for full project instructions.
+Otherwise: read `.ai/manifest.json`, then `.ai/AGENTS.md` for full project instructions.
 Follow the spec > plan > build workflow in `.ai/skills/`.
 Load context per `.ai/CONTEXT.md` profiles.

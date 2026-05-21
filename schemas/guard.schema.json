@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/guard-0.1.0.schema.json",
+  "title": ".ai Guard Metadata",
+  "type": "object",
+  "required": [
+    "name",
+    "type",
+    "severity",
+    "command"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "checklist",
+        "script",
+        "manual"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "blocking"
+      ]
+    },
+    "command": {
+      "type": "string"
+    }
+  }
+}

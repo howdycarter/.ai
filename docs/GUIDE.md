@@ -8,6 +8,8 @@ The ticket is dead. Jira, Trello, Linear — the entire class of tools built to 
 
 This guide documents the complete system. A set of markdown primitives replaces your project management tool, your design handoff process, your sprint ceremonies, your standups, your QA checklists, and your onboarding documentation. The entire PM function lives in version-controlled markdown inside the same repo as your code.
 
+As of `.ai` Standard v0.1, the directory also includes `.ai/manifest.json`: a machine-readable discovery surface for agents, IDEs, CLIs, packs, and conformance tests. Markdown remains canonical; the manifest lets tools find the markdown without guessing.
+
 This isn't theory. Every primitive described here is already in production use across thousands of projects. CLAUDE.md was formalized by Anthropic. AGENTS.md was introduced by OpenAI. .cursorrules was built by Cursor. DESIGN.md was launched by Google Stitch. GitHub published Spec Kit. What nobody has done — until now — is assemble all of them into one coherent, opinionated system.
 
 This guide does that.
@@ -34,6 +36,7 @@ You don't need to write code. You need to write great specs, maintain great cont
 project-root/
 ├── .ai/                              # The AI PM system
 │   ├── VISION.md                     # What we're building and why
+│   ├── manifest.json                 # Machine-readable .ai Standard discovery
 │   ├── DESIGN.md                     # How it looks (visual system)
 │   ├── AGENTS.md                     # How agents behave
 │   ├── STACK.md                      # Technology decisions

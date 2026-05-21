@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/retrospective-0.1.0.schema.json",
+  "title": ".ai Retrospective Metadata",
+  "type": "object",
+  "required": [
+    "period",
+    "wins",
+    "failures",
+    "rulesToAdd"
+  ],
+  "properties": {
+    "period": {
+      "type": "string"
+    },
+    "wins": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rulesToAdd": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

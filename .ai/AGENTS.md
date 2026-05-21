@@ -1,6 +1,7 @@
 # Agent Instructions: {Project Name}
 
 Read .ai/VISION.md for product context.
+Read .ai/manifest.json for standard discovery and active work paths.
 Read .ai/DESIGN.md for visual system.
 Read .ai/STACK.md for technology decisions.
 Read .ai/CONTEXT.md for context loading profiles.

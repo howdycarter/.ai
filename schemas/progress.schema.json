@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/progress-0.1.0.schema.json",
+  "title": ".ai Progress Metadata",
+  "type": "object",
+  "required": [
+    "date",
+    "branch",
+    "summary",
+    "checkpoint"
+  ],
+  "properties": {
+    "date": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": [
+        "currentSpec",
+        "currentPlan",
+        "completed",
+        "nextStep"
+      ],
+      "properties": {
+        "currentSpec": {
+          "type": "string"
+        },
+        "currentPlan": {
+          "type": "string"
+        },
+        "completed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextStep": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "schemas/manifest.schema.json",
+  "standardVersion": "0.1.0",
+  "projectName": ".ai",
+  "createdAt": "2026-05-20T00:00:00.000Z",
+  "primitives": [
+    {
+      "name": "VISION.md",
+      "path": ".ai/VISION.md",
+      "required": true
+    },
+    {
+      "name": "DESIGN.md",
+      "path": ".ai/DESIGN.md",
+      "required": true
+    },
+    {
+      "name": "AGENTS.md",
+      "path": ".ai/AGENTS.md",
+      "required": true
+    },
+    {
+      "name": "STACK.md",
+      "path": ".ai/STACK.md",
+      "required": true
+    },
+    {
+      "name": "CONTEXT.md",
+      "path": ".ai/CONTEXT.md",
+      "required": true
+    },
+    {
+      "name": "specs",
+      "path": ".ai/specs",
+      "required": true
+    },
+    {
+      "name": "plans",
+      "path": ".ai/plans",
+      "required": true
+    },
+    {
+      "name": "decisions",
+      "path": ".ai/decisions",
+      "required": true
+    },
+    {
+      "name": "skills",
+      "path": ".ai/skills",
+      "required": true
+    },
+    {
+      "name": "progress",
+      "path": ".ai/progress",
+      "required": true
+    },
+    {
+      "name": "retrospectives",
+      "path": ".ai/retrospectives",
+      "required": true
+    },
+    {
+      "name": "guards",
+      "path": ".ai/guards",
+      "required": true
+    }
+  ],
+  "adapters": [
+    {
+      "name": "codex",
+      "path": "AGENTS.md",
+      "enabled": true
+    },
+    {
+      "name": "claude-code",
+      "path": "CLAUDE.md",
+      "enabled": true
+    },
+    {
+      "name": "cursor",
+      "path": ".cursor/rules",
+      "enabled": true
+    },
+    {
+      "name": "generic-agent",
+      "path": ".ai/AGENTS.md",
+      "enabled": true
+    }
+  ],
+  "guards": {
+    "checklist": ".ai/guards/CHECKLIST.md",
+    "commands": [
+      "dot-ai doctor",
+      "dot-ai score <spec>"
+    ]
+  },
+  "activeWork": {
+    "specs": ".ai/specs/active",
+    "plans": ".ai/plans",
+    "progress": ".ai/progress",
+    "buildReport": ".ai/build-report.md"
+  }
+}

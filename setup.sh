@@ -8,6 +8,7 @@ set -e
 TARGET="${1:-.}"
 AI_DIR="$TARGET/.ai"
 CURSOR_DIR="$TARGET/.cursor/rules"
+PROJECT_NAME="$(basename "$TARGET")"
 
 echo ""
 echo "  ┌────────────────────────────────────────┐"
@@ -40,9 +41,52 @@ mkdir -p "$AI_DIR/skills"
 mkdir -p "$AI_DIR/progress"
 mkdir -p "$AI_DIR/retrospectives"
 mkdir -p "$AI_DIR/guards"
+mkdir -p "$AI_DIR/packs"
 mkdir -p "$CURSOR_DIR"
 
 echo "  ✓ Directories created"
+
+# --- Manifest ---
+cat > "$AI_DIR/manifest.json" << ENDOFFILE
+{
+  "schemaVersion": "https://dot-ai.dev/schemas/manifest-0.1.0.schema.json",
+  "standardVersion": "0.1.0",
+  "projectName": "$PROJECT_NAME",
+  "createdAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+  "primitives": [
+    { "name": "VISION.md", "path": ".ai/VISION.md", "required": true },
+    { "name": "DESIGN.md", "path": ".ai/DESIGN.md", "required": true },
+    { "name": "AGENTS.md", "path": ".ai/AGENTS.md", "required": true },
+    { "name": "STACK.md", "path": ".ai/STACK.md", "required": true },
+    { "name": "CONTEXT.md", "path": ".ai/CONTEXT.md", "required": true },
+    { "name": "specs", "path": ".ai/specs", "required": true },
+    { "name": "plans", "path": ".ai/plans", "required": true },
+    { "name": "decisions", "path": ".ai/decisions", "required": true },
+    { "name": "skills", "path": ".ai/skills", "required": true },
+    { "name": "progress", "path": ".ai/progress", "required": true },
+    { "name": "retrospectives", "path": ".ai/retrospectives", "required": true },
+    { "name": "guards", "path": ".ai/guards", "required": true }
+  ],
+  "adapters": [
+    { "name": "codex", "path": "AGENTS.md", "enabled": true },
+    { "name": "claude-code", "path": "CLAUDE.md", "enabled": true },
+    { "name": "cursor", "path": ".cursor/rules", "enabled": true },
+    { "name": "generic-agent", "path": ".ai/AGENTS.md", "enabled": true }
+  ],
+  "guards": {
+    "checklist": ".ai/guards/CHECKLIST.md",
+    "commands": ["dot-ai doctor", "dot-ai score <spec>"]
+  },
+  "activeWork": {
+    "specs": ".ai/specs/active",
+    "plans": ".ai/plans",
+    "progress": ".ai/progress",
+    "buildReport": ".ai/build-report.md"
+  }
+}
+ENDOFFILE
+
+echo "  ✓ Manifest created"
 
 # --- VISION.md ---
 cat > "$AI_DIR/VISION.md" << 'ENDOFFILE'
@@ -475,6 +519,56 @@ ENDOFFILE
 echo "  ✓ Core context files created"
 
 # --- Skills ---
+cat > "$AI_DIR/skills/help.md" << 'ENDOFFILE'
+# Skill: .ai Help
+
+## When to use
+Use at the start of a session, when the operator asks "what now?", or
+when an agent needs to orient itself inside a .ai project.
+
+## Workflow
+1. Read .ai/manifest.json.
+2. Check active specs in .ai/specs/active/.
+3. Check plans in .ai/plans/.
+4. Check the latest progress entry in .ai/progress/.
+5. Check guards listed in the manifest.
+
+## Output
+Return exactly:
+- Current state
+- Blockers
+- Recommended next action
+- Optional actions
+
+## Rules
+- Prefer existing specs and plans over inventing new work.
+- If no .ai/manifest.json exists, recommend dot-ai init.
+- If a plan is not approved, do not recommend implementation.
+ENDOFFILE
+
+cat > "$AI_DIR/skills/interview.md" << 'ENDOFFILE'
+# Skill: .ai Interview
+
+## When to use
+Use when the operator has an idea, feature, bug, product concept, or
+vague request that is not yet implementation-ready.
+
+## Flow
+1. Brain dump: collect notes, files, links, sketches, constraints, and missing context.
+2. Stakes: classify as hobby, internal, launch, or enterprise/compliance.
+3. Mode: choose fast, coached, or deep.
+4. Concern scan: UX, security, privacy, data, integrations, migration, monetization, performance, support, compliance.
+5. Draft: capture assumptions, decisions, open questions, non-goals, and discarded paths.
+6. Spec: create or update a spec using .ai/specs/_TEMPLATE.md.
+7. Review lenses: first principles, pre-mortem, edge cases, security/privacy, implementation risk, UX friction, go-to-market clarity.
+8. Activate: score the spec and move it to .ai/specs/active/ only when ready.
+
+## Rules
+- Do not start implementation during the interview.
+- Mark unconfirmed inferences with [ASSUMPTION].
+- Keep markdown artifacts as the record.
+ENDOFFILE
+
 cat > "$AI_DIR/skills/new-feature.md" << 'ENDOFFILE'
 # Skill: New Feature Implementation
 
@@ -902,6 +996,33 @@ ENDOFFILE
 
 echo "  ✓ Retrospective template created"
 
+# --- Shareable build report template ---
+cat > "$AI_DIR/build-report.md" << 'ENDOFFILE'
+# Built with .ai
+
+## Project
+{Project Name}
+
+## Idea
+Describe the original idea in one paragraph.
+
+## Active Specs
+- None recorded yet.
+
+## Outcome
+Describe what shipped or what changed.
+
+## Lessons
+- Add the most useful lesson from this build.
+
+## Safety
+This report is intended for public sharing after review. Remove private
+paths, credentials, customer data, and unreleased business details before
+publishing.
+ENDOFFILE
+
+echo "  ✓ Build report template created"
+
 # --- .gitkeep files for empty directories ---
 touch "$AI_DIR/specs/active/.gitkeep"
 touch "$AI_DIR/specs/draft/.gitkeep"
@@ -911,6 +1032,7 @@ touch "$AI_DIR/plans/.gitkeep"
 touch "$AI_DIR/decisions/.gitkeep"
 touch "$AI_DIR/progress/.gitkeep"
 touch "$AI_DIR/retrospectives/.gitkeep"
+touch "$AI_DIR/packs/.gitkeep"
 
 # --- Cursor rules ---
 cat > "$CURSOR_DIR/global.mdc" << 'ENDOFFILE'
@@ -918,7 +1040,7 @@ cat > "$CURSOR_DIR/global.mdc" << 'ENDOFFILE'
 globs: **/*
 ---
 If `.ai/VISION.md` contains placeholder text, run `.ai/skills/onboard.md` first.
-Otherwise: read `.ai/AGENTS.md` for full project instructions.
+Otherwise: read `.ai/manifest.json`, then `.ai/AGENTS.md` for full project instructions.
 Follow the spec > plan > build workflow in `.ai/skills/`.
 Load context per `.ai/CONTEXT.md` profiles.
 ENDOFFILE
@@ -954,12 +1076,14 @@ cat > "$TARGET/CLAUDE.md" << 'ENDOFFILE'
      Do not wait for the operator to ask. Start onboarding now. -->
 
 ## On session start
-1. If VISION.md contains "{Project Name}" → run .ai/skills/onboard.md
-2. Otherwise → check .ai/progress/ for the latest checkpoint
-3. Load context per .ai/CONTEXT.md for the current task type
+1. Read .ai/manifest.json
+2. If VISION.md contains "{Project Name}" → run .ai/skills/onboard.md
+3. Otherwise → check .ai/progress/ for the latest checkpoint
+4. Load context per .ai/CONTEXT.md for the current task type
 
 ## Critical rules (always in memory)
 - Read `.ai/AGENTS.md` for full instructions. All context in `.ai/`.
+- Use `.ai/skills/help.md` when the next action is unclear.
 - NEVER implement without an approved plan in `.ai/plans/`.
 - Run typecheck and lint after every change.
 
@@ -976,6 +1100,7 @@ cat > "$TARGET/AGENTS.md" << 'ENDOFFILE'
 <!-- If .ai/VISION.md contains placeholder text "{Project Name}",
      run .ai/skills/onboard.md to initialize the project. -->
 
+Read `.ai/manifest.json` first.
 See `.ai/AGENTS.md` for complete agent instructions.
 Read `.ai/CONTEXT.md` to determine which files to load.
 ENDOFFILE
@@ -999,6 +1124,7 @@ echo "  │                                              │"
 echo "  │  Just open Claude Code, Cursor, or Codex.    │"
 echo "  │  The onboarding starts itself.               │"
 echo "  │                                              │"
-echo "  │  Full guide: howdycarter.com/dot-ai           │"
+echo "  │  Standard: spec.ai.md                         │"
+echo "  │  CLI: npx dot-ai doctor                       │"
 echo "  └──────────────────────────────────────────────┘"
 echo ""

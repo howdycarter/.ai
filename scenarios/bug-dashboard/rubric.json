@@ -1,0 +1,43 @@
+{
+  "name": "Bug Dashboard Proof Rubric",
+  "version": "0.1.0",
+  "timeBudgetMinutes": 90,
+  "dimensions": [
+    {
+      "id": "spec-completeness",
+      "label": "Spec captures report sources, triage workflow, roles, and exclusions",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "plan-executability",
+      "label": "Plan maps the operational workflow to concrete screens and data",
+      "group": "readiness",
+      "weight": 3
+    },
+    {
+      "id": "acceptance-coverage",
+      "label": "Final app satisfies the acceptance criteria",
+      "group": "finalOutcome",
+      "weight": 5
+    },
+    {
+      "id": "ops-scanability",
+      "label": "Dashboard supports fast scanning, filtering, and prioritization",
+      "group": "finalOutcome",
+      "weight": 4
+    },
+    {
+      "id": "handoff-quality",
+      "label": "Summary and production notes make the next team action obvious",
+      "group": "finalOutcome",
+      "weight": 3
+    },
+    {
+      "id": "rework-cost",
+      "label": "Build required fewer clarification loops and manual fixes",
+      "group": "finalOutcome",
+      "weight": 3
+    }
+  ]
+}

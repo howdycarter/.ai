@@ -1,12 +1,30 @@
 # .ai/ (dot ai)
 
-**Your PM tool is a directory.**
+**Your PM tool is a directory. Your proof is in git.**
 
 In March 2026, Linear declared issue tracking dead. Google shipped DESIGN.md — a markdown file that replaces design handoffs. Anthropic formalized CLAUDE.md. OpenAI introduced AGENTS.md. GitHub published Spec Kit. Karpathy moved on from "vibe coding" to "agentic engineering." Every layer of the software development stack converged on the same pattern: **structured markdown files consumed by AI agents.**
 
 Nobody assembled them into one system. Until now.
 
 **.ai/ is a directory you add to any repo that replaces your project management tool entirely.** Twelve markdown primitives handle your backlog, sprint planning, design system, standups, QA checklists, onboarding docs, and deployment gates. No SaaS subscription. No ticket system. No ceremonies. Just version-controlled markdown that AI agents read natively and humans read easily.
+
+The next step is the **.ai Standard v0.1**: a founder-led open standard for repo-native AI development context. `.ai/manifest.json` gives tools a machine-readable map of your project context, schemas define conformance, packs extend the core, and `dot-ai doctor` tells you whether a repo is agent-ready.
+
+The product claim is proof-first, not hype-first. `dot-ai prove` creates a structured A/B proof run so teams can compare a baseline workflow against `.ai`, record the same prompt, score the final product outcome, and publish a public-safe build report only when the evidence is strong.
+
+```bash
+npx dot-ai init
+npx dot-ai doctor
+npx dot-ai status
+npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD
+npx dot-ai share
+```
+
+Badges this standard enables:
+
+- **Built with .ai** — this project shares proof artifacts from `.ai/build-report.md`.
+- **Valid .ai project** — this repo passes `dot-ai doctor`.
+- **Agent-ready** — adapters exist for the target AI coding tools.
 
 ![How .ai/ Works — Simple Overview](images/diagram-1-how-it-works.png)
 
@@ -156,6 +174,65 @@ You're not locked into one tool. You're locked into one directory convention tha
 
 ---
 
+## The .ai Standard
+
+Read [`spec.ai.md`](spec.ai.md) for the human-readable standard. The short
+version:
+
+- Markdown remains the source of truth.
+- `.ai/manifest.json` lets agents and tools discover project context.
+- JSON Schemas define conformance for manifests, specs, plans, decisions,
+  progress checkpoints, retrospectives, and guards.
+- Packs add templates, adapters, guards, workflows, and examples without
+  bloating the core.
+- The reference CLI validates and accelerates the directory, but does not
+  replace it.
+
+## Proof Lab
+
+`.ai` does not ask people to believe that more structure magically builds better software. It creates proof runs that can be inspected, repeated, and shared.
+
+```bash
+npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD --out proof-runs/invoice-app
+npx dot-ai prove score proof-runs/invoice-app
+```
+
+The first canonical scenarios are:
+
+- `invoice-app`: freelancer invoice creation, totals, statuses, and public-safe summaries.
+- `habit-tracker`: daily check-ins, missed-day recovery, progress patterns, and privacy expectations.
+- `bug-dashboard`: internal triage, severity/status filters, stale and unowned bug visibility.
+
+Each scenario includes the same three artifacts: `prompt.md`, `acceptance.md`, and `rubric.json`. A proof run emits `verdict.json` and `build-report.md` so the claim stays measurable: spec readiness, final product outcome, acceptance coverage, rework, commands, screenshots, and plain-English verdict.
+
+After both builds are complete, fill in `verdict.json`:
+
+- Set each acceptance item to `pass`, `partial`, or `fail` for both baseline and candidate.
+- Set each rubric dimension to a number from `0` to its `weight` for both baseline and candidate.
+- Mark commands as run, add screenshots or PR links, record rework, and replace the placeholder verdict.
+- Run `dot-ai prove score <proof-run-dir>` to validate completeness, compute deltas, and refresh the report.
+
+Until three proof runs show a measurable advantage, `.ai` stays v0.1 and the standard does not expand further. The next milestone is evidence, not more ceremony.
+
+## 15-minute path
+
+The fastest path stays markdown-first:
+
+```bash
+npx dot-ai init --yes
+# Tell your agent: "Use .ai/skills/interview.md to turn my idea into a spec."
+npx dot-ai score .ai/specs/active/first-feature.md
+# Tell your agent: "Plan and build against that spec."
+npx dot-ai share
+```
+
+For a comparative product proof, add:
+
+```bash
+npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD
+npx dot-ai prove score proof-runs/invoice-app
+```
+
 ## Quick start
 
 ### Option A: One-command setup
@@ -163,18 +240,26 @@ You're not locked into one tool. You're locked into one directory convention tha
 Run inside any existing project:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/howdycarter/dot-ai/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/howdycarter/.ai/main/setup.sh | bash
 ```
 
 Or clone and run locally:
 
 ```bash
-git clone https://github.com/howdycarter/dot-ai.git
-cd dot-ai
+git clone https://github.com/howdycarter/.ai.git
+cd .ai
 ./setup.sh /path/to/your/project
 ```
 
-### Option B: Manual setup
+### Option B: Reference CLI
+
+```bash
+npx dot-ai init --dir /path/to/your/project --yes
+npx dot-ai doctor --dir /path/to/your/project
+npx dot-ai status --dir /path/to/your/project
+```
+
+### Option C: Manual setup
 
 ```bash
 cp -r .ai/ /path/to/your/project/.ai/
@@ -271,9 +356,21 @@ Every major platform independently arrived at the same conclusion: **structured 
 
 ---
 
+## Open governance
+
+`.ai` is a founder-led open standard. Christopher Carter keeps the standard
+opinionated and coherent; contributors can propose schemas, packs, adapters,
+examples, docs, and standard changes through RFCs.
+
+- Governance: [`GOVERNANCE.md`](GOVERNANCE.md)
+- Standard: [`spec.ai.md`](spec.ai.md)
+- RFC process: [`RFCs/0000-rfc-process.md`](RFCs/0000-rfc-process.md)
+- Pack registry: [`registry/index.json`](registry/index.json)
+- Schemas: [`schemas/`](schemas/)
+
 ## Full guide
 
-The complete 10,000-word methodology — with filled-in examples for every primitive — lives at [`docs/GUIDE.md`](docs/GUIDE.md) or [howdycarter.com/dot-ai](https://howdycarter.com/dot-ai). It walks through each primitive with production-quality examples showing what real `.ai/` files look like: a VISION.md with principles that guide agent micro-decisions, a DESIGN.md with a full visual system, an AGENTS.md with learned rules from actual failures, a complete spec with GIVEN/WHEN/THEN criteria, an approved plan with operator annotations, and a progress file with a checkpoint for session resumption.
+The complete 10,000-word methodology — with filled-in examples for every primitive — lives at [`docs/GUIDE.md`](docs/GUIDE.md). It walks through each primitive with production-quality examples showing what real `.ai/` files look like: a VISION.md with principles that guide agent micro-decisions, a DESIGN.md with a full visual system, an AGENTS.md with learned rules from actual failures, a complete spec with GIVEN/WHEN/THEN criteria, an approved plan with operator annotations, and a progress file with a checkpoint for session resumption.
 
 ---
 

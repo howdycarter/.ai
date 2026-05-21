@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "0.1.0",
+  "updatedAt": "2026-05-20T00:00:00.000Z",
+  "packs": [
+    {
+      "name": "solo-saas",
+      "version": "0.1.0",
+      "type": "template",
+      "description": "Solo SaaS founder workflow with product, UX, and launch-ready specs.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/VISION.md",
+        ".ai/specs/_TEMPLATE.md",
+        ".ai/skills/interview.md"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "api-service",
+      "version": "0.1.0",
+      "type": "workflow",
+      "description": "Backend service workflow with contracts, tests, and operational guards.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/STACK.md",
+        ".ai/guards/CHECKLIST.md"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "mobile-app",
+      "version": "0.1.0",
+      "type": "template",
+      "description": "Mobile product workflow with platform, UX, and release constraints.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/DESIGN.md",
+        ".ai/specs/_TEMPLATE.md"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "game",
+      "version": "0.1.0",
+      "type": "template",
+      "description": "Game project workflow with gameplay loops, assets, and playtest checkpoints.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/specs/_TEMPLATE.md",
+        ".ai/progress"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "enterprise",
+      "version": "0.1.0",
+      "type": "workflow",
+      "description": "Enterprise workflow with rollout, audit, governance, and support depth.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/decisions",
+        ".ai/guards",
+        ".ai/retrospectives"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "brownfield",
+      "version": "0.1.0",
+      "type": "workflow",
+      "description": "Existing-codebase workflow focused on safe change and context extraction.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/CONTEXT.md",
+        ".ai/skills/onboard.md"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "security-heavy",
+      "version": "0.1.0",
+      "type": "guard",
+      "description": "Security-sensitive workflow with threat, privacy, and review gates.",
+      "standardVersion": "0.1.0",
+      "files": [
+        ".ai/guards/BOUNDARIES.md",
+        ".ai/skills/security-review.md"
+      ],
+      "license": "MIT"
+    }
+  ]
+}
