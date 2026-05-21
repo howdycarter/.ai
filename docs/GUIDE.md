@@ -936,7 +936,36 @@ Usage: "Score this spec against `.ai/specs/_QUALITY_RUBRIC.md`. List each dimens
 
 ---
 
-## Primitive 7: Plan Files — The Approval Gate
+## Primitive 7: Stories — Focused Implementation Slices
+
+**Replaces:** Implementation tickets, sprint stories
+
+**Answers:** *What focused slice is being built now?*
+
+**When to create:** Only when an active spec is too large for one implementation session or needs multiple parallel slices.
+
+Stories are deliberately smaller than specs. The spec remains the product contract; a story is the current implementation slice with enough context for an agent to execute without rediscovering the whole plan.
+
+```bash
+dot-ai story create invoice-totals \
+  --spec .ai/specs/active/invoice-app.md \
+  --acceptance "GIVEN an invoice with two line items, WHEN totals render, THEN subtotal and total are correct."
+dot-ai story validate .ai/stories/ready/invoice-totals.md
+dot-ai story done .ai/stories/ready/invoice-totals.md
+```
+
+Story states:
+
+- `ready`: sliced from an active spec and ready for implementation.
+- `in-progress`: implementation has started.
+- `review`: implementation is awaiting verification.
+- `done`: verified and moved out of active execution.
+
+Do not create stories for small fixes. The point is to preserve BMAD's useful implementation discipline without recreating Jira inside git.
+
+---
+
+## Primitive 8: Plan Files — The Approval Gate
 
 **Replaces:** Sprint planning, task breakdowns, technical design reviews
 
@@ -1059,7 +1088,7 @@ Amendment rules: the original plan stays intact (never edit completed steps retr
 
 ---
 
-## Primitive 8: Decision Records — Institutional Memory
+## Primitive 9: Decision Records — Institutional Memory
 
 **Replaces:** Meeting notes, Slack threads, "why did we do it this way?"
 
@@ -1118,7 +1147,7 @@ Number decisions sequentially: `001-supabase-over-firebase.md`, `002-app-router-
 
 ---
 
-## Primitive 9: Skills — Reusable Agent Workflows
+## Primitive 10: Skills — Reusable Agent Workflows
 
 **Replaces:** Process documentation, runbooks, SOPs
 
@@ -1326,7 +1355,7 @@ progress file, continuing the chain.
 
 ---
 
-## Primitive 10: Progress Files — The Standup Replacement
+## Primitive 11: Progress Files — The Standup Replacement
 
 **Replaces:** Daily standups, status updates, sprint reviews
 
@@ -1426,7 +1455,7 @@ For weekly reviews, scan the last 5 progress files. For monthly retrospectives, 
 
 ---
 
-## Primitive 11: Retrospectives — The Feedback Loop
+## Primitive 12: Retrospectives — The Feedback Loop
 
 **Replaces:** Sprint retrospectives, quarterly reviews
 
@@ -1530,7 +1559,7 @@ Over time, this data tells you whether your context engineering discipline is im
 
 ---
 
-## Primitive 12: Guards — The Quality Gate
+## Primitive 13: Guards — The Quality Gate
 
 **Replaces:** QA process, security review, deployment checklists
 

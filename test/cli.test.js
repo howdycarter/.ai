@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const process = require('node:process');
 const { describe, it } = require('node:test');
 
 const { run } = require('../src/cli');
@@ -28,6 +29,8 @@ describe('dot-ai CLI', () => {
     assert.match(result.stdout, /Initialized \.ai Standard/);
     assert.equal(fs.existsSync(path.join(root, '.ai', 'manifest.json')), true);
     assert.equal(fs.existsSync(path.join(root, '.ai', 'skills', 'help.md')), true);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'stories', 'ready')), true);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'stories', '_TEMPLATE.md')), true);
   });
 
   it('doctor reports a valid initialized project', async () => {
@@ -267,5 +270,102 @@ describe('dot-ai CLI', () => {
     assert.equal(scoredVerdict.acceptanceSummary.candidate.pass, 6);
     assert.match(report, /Candidate delta: \+4/);
     assert.match(report, /Candidate produced a stronger result/);
+  });
+
+  it('creates, validates, and completes implementation stories', async () => {
+    const root = makeTempProject('story');
+    await run(['init', '--dir', root, '--yes']);
+
+    const create = await run([
+      'story',
+      'create',
+      'invoice-totals',
+      '--dir',
+      root,
+      '--title',
+      'Invoice totals',
+      '--spec',
+      '.ai/specs/active/invoice-app.md',
+      '--acceptance',
+      'GIVEN an invoice with two line items, WHEN totals render, THEN subtotal and total are correct.',
+    ]);
+    const storyPath = path.join(root, '.ai', 'stories', 'ready', 'invoice-totals.md');
+    const storyCreated = fs.existsSync(storyPath);
+    const validate = await run(['story', 'validate', storyPath]);
+    const done = await run(['story', 'done', storyPath, '--dir', root]);
+    const donePath = path.join(root, '.ai', 'stories', 'done', 'invoice-totals.md');
+    const doneStory = fs.readFileSync(donePath, 'utf8');
+
+    assert.equal(create.code, 0);
+    assert.match(create.stdout, /Created story/);
+    assert.equal(storyCreated, true);
+    assert.equal(validate.code, 0);
+    assert.match(validate.stdout, /Story ready for implementation/);
+    assert.equal(done.code, 0);
+    assert.match(done.stdout, /Completed story/);
+    assert.equal(fs.existsSync(storyPath), false);
+    assert.match(doneStory, /\*\*Status:\*\* done/);
+  });
+
+  it('rejects incomplete stories during validation and completion', async () => {
+    const root = makeTempProject('story-invalid');
+    const storyPath = path.join(root, '.ai', 'stories', 'ready', 'bad.md');
+    writeFile(storyPath, '# Story: Bad\n\n**Status:** ready\n');
+
+    const validate = await run(['story', 'validate', storyPath]);
+    const done = await run(['story', 'done', storyPath, '--dir', root]);
+
+    assert.equal(validate.code, 1);
+    assert.match(validate.stderr, /Missing spec reference/);
+    assert.match(validate.stderr, /Missing acceptance criteria/);
+    assert.equal(done.code, 1);
+    assert.match(done.stderr, /Story is not complete enough to mark done/);
+  });
+
+  it('records proof command evidence into verdict data', async () => {
+    const root = makeTempProject('prove-run-command');
+    const out = path.join(root, 'proof-runs', 'invoice-app');
+    await run(['prove', 'invoice-app', '--out', out]);
+
+    const result = await run([
+      'prove',
+      'run',
+      out,
+      '--ref',
+      'candidate',
+      '--command',
+      `${process.execPath} -e "process.stdout.write('ok')"`,
+    ]);
+    const verdict = JSON.parse(fs.readFileSync(path.join(out, 'verdict.json'), 'utf8'));
+    const command = verdict.commands.find((entry) => entry.ref === 'candidate' && entry.command.includes('process.stdout'));
+
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /Recorded proof command/);
+    assert.equal(command.status, 'pass');
+    assert.equal(command.exitCode, 0);
+    assert.equal(command.stdout, 'ok');
+  });
+
+  it('records failing proof command evidence without crashing', async () => {
+    const root = makeTempProject('prove-run-failure');
+    const out = path.join(root, 'proof-runs', 'invoice-app');
+    await run(['prove', 'invoice-app', '--out', out]);
+
+    const result = await run([
+      'prove',
+      'run',
+      out,
+      '--ref',
+      'baseline',
+      '--command',
+      `${process.execPath} -e "process.stderr.write('bad'); process.exit(7)"`,
+    ]);
+    const verdict = JSON.parse(fs.readFileSync(path.join(out, 'verdict.json'), 'utf8'));
+    const command = verdict.commands.find((entry) => entry.ref === 'baseline' && entry.exitCode === 7);
+
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /Proof command failed/);
+    assert.equal(command.status, 'fail');
+    assert.equal(command.stderr, 'bad');
   });
 });

@@ -6,7 +6,7 @@ In March 2026, Linear declared issue tracking dead. Google shipped DESIGN.md —
 
 Nobody assembled them into one system. Until now.
 
-**.ai/ is a directory you add to any repo that replaces your project management tool entirely.** Twelve markdown primitives handle your backlog, sprint planning, design system, standups, QA checklists, onboarding docs, and deployment gates. No SaaS subscription. No ticket system. No ceremonies. Just version-controlled markdown that AI agents read natively and humans read easily.
+**.ai/ is a directory you add to any repo that replaces your project management tool entirely.** Thirteen markdown primitives handle your backlog, story slices, sprint planning, design system, standups, QA checklists, onboarding docs, and deployment gates. No SaaS subscription. No ticket system. No ceremonies. Just version-controlled markdown that AI agents read natively and humans read easily.
 
 The next step is the **.ai Standard v0.1**: a founder-led open standard for repo-native AI development context. `.ai/manifest.json` gives tools a machine-readable map of your project context, schemas define conformance, packs extend the core, and `dot-ai doctor` tells you whether a repo is agent-ready.
 
@@ -16,6 +16,8 @@ The product claim is proof-first, not hype-first. `dot-ai prove` creates a struc
 npx dot-ai init
 npx dot-ai doctor
 npx dot-ai status
+npx dot-ai story create invoice-totals --spec .ai/specs/active/invoice-app.md
+npx dot-ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
 npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD
 npx dot-ai share
 ```
@@ -140,7 +142,7 @@ Zero percent writing code. Your entire value is in the quality of the context yo
 
 ## What's in the box
 
-### The 12 primitives
+### The 13 primitives
 
 | # | File | Replaces | Answers |
 |---|------|----------|---------|
@@ -150,12 +152,13 @@ Zero percent writing code. Your entire value is in the quality of the context yo
 | 4 | `STACK.md` | Tech stack justification docs | What technologies and why? |
 | 5 | `CONTEXT.md` | *(no traditional equivalent)* | How much context to load per task? |
 | 6 | `specs/` | Jira tickets, Linear issues, user stories, PRDs | What exactly needs to be built? |
-| 7 | `plans/` | Sprint planning, task breakdowns | How will we implement it? |
-| 8 | `decisions/` | Meeting notes, Slack threads, architecture docs | Why did we choose X over Y? |
-| 9 | `skills/` | Process docs, runbooks, SOPs | What's the workflow for this work? |
-| 10 | `progress/` | Standups, status updates, sprint reviews | What happened? |
-| 11 | `retrospectives/` | Sprint retros, quarterly reviews | Is our system improving? |
-| 12 | `guards/` | QA process, security review, deploy checklists | What must pass before shipping? |
+| 7 | `stories/` | Implementation tickets, sprint stories | What focused slice is being built now? |
+| 8 | `plans/` | Sprint planning, task breakdowns | How will we implement it? |
+| 9 | `decisions/` | Meeting notes, Slack threads, architecture docs | Why did we choose X over Y? |
+| 10 | `skills/` | Process docs, runbooks, SOPs | What's the workflow for this work? |
+| 11 | `progress/` | Standups, status updates, sprint reviews | What happened? |
+| 12 | `retrospectives/` | Sprint retros, quarterly reviews | Is our system improving? |
+| 13 | `guards/` | QA process, security review, deploy checklists | What must pass before shipping? |
 
 ### Agent-agnostic by design
 
@@ -181,8 +184,8 @@ version:
 
 - Markdown remains the source of truth.
 - `.ai/manifest.json` lets agents and tools discover project context.
-- JSON Schemas define conformance for manifests, specs, plans, decisions,
-  progress checkpoints, retrospectives, and guards.
+- JSON Schemas define conformance for manifests, specs, stories, plans,
+  decisions, progress checkpoints, retrospectives, and guards.
 - Packs add templates, adapters, guards, workflows, and examples without
   bloating the core.
 - The reference CLI validates and accelerates the directory, but does not
@@ -194,6 +197,7 @@ version:
 
 ```bash
 npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD --out proof-runs/invoice-app
+npx dot-ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
 npx dot-ai prove score proof-runs/invoice-app
 ```
 
@@ -209,10 +213,25 @@ After both builds are complete, fill in `verdict.json`:
 
 - Set each acceptance item to `pass`, `partial`, or `fail` for both baseline and candidate.
 - Set each rubric dimension to a number from `0` to its `weight` for both baseline and candidate.
-- Mark commands as run, add screenshots or PR links, record rework, and replace the placeholder verdict.
+- Use `dot-ai prove run <proof-run-dir> --ref <baseline|candidate> --command "<command>"` to capture command evidence.
+- Add screenshots or PR links, record rework, and replace the placeholder verdict.
 - Run `dot-ai prove score <proof-run-dir>` to validate completeness, compute deltas, and refresh the report.
 
-Until three proof runs show a measurable advantage, `.ai` stays v0.1 and the standard does not expand further. The next milestone is evidence, not more ceremony.
+After the story lifecycle and proof evidence loop, `.ai` should stay v0.1 until three proof runs show a measurable advantage. The next milestone is evidence, not more ceremony.
+
+## Story lifecycle
+
+Stories are optional implementation slices for specs that are too large for one session. They are not a second backlog and they are not required for small fixes.
+
+```bash
+npx dot-ai story create invoice-totals \
+  --spec .ai/specs/active/invoice-app.md \
+  --acceptance "GIVEN an invoice with two line items, WHEN totals render, THEN subtotal and total are correct."
+npx dot-ai story validate .ai/stories/ready/invoice-totals.md
+npx dot-ai story done .ai/stories/ready/invoice-totals.md
+```
+
+Story states are `ready`, `in-progress`, `review`, and `done`. A story must reference its parent spec, include acceptance criteria, and include implementation notes before it can be completed.
 
 ## 15-minute path
 
@@ -230,6 +249,7 @@ For a comparative product proof, add:
 
 ```bash
 npx dot-ai prove invoice-app --baseline origin/main --candidate HEAD
+npx dot-ai prove run proof-runs/invoice-app --ref candidate --command "npm test"
 npx dot-ai prove score proof-runs/invoice-app
 ```
 

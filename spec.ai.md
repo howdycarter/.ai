@@ -13,7 +13,7 @@ guardrails live.
 - **Git is the database.** Context changes travel with code changes.
 - **Agents can discover state.** `.ai/manifest.json` points tools to the active
   work, adapters, guards, and standard version.
-- **Small core, useful extensions.** The 12 primitives are stable. Packs add
+- **Small core, useful extensions.** The 13 primitives are stable. Packs add
   domain-specific behavior without fragmenting the core.
 - **Human judgment stays central.** `.ai` improves interviews, plans, reviews,
   and checkpoints; it does not pretend product judgment is automatic.
@@ -31,6 +31,7 @@ Every valid `.ai` project includes:
 ├── STACK.md
 ├── CONTEXT.md
 ├── specs/
+├── stories/
 ├── plans/
 ├── decisions/
 ├── skills/
@@ -60,6 +61,7 @@ Required fields:
 - `adapters`: configured agent/IDE adapters.
 - `guards`: checklist and command metadata.
 - `activeWork`: paths for specs, plans, progress, and build report output.
+- `activeWork.stories`: path to story lifecycle state directories when enabled.
 
 ## Lifecycle States
 
@@ -79,6 +81,13 @@ Plans use these states:
 - `in-progress`: implementation has started.
 - `completed`: all steps verified.
 - `superseded`: replaced by a newer plan.
+
+Stories use these states:
+
+- `ready`: sliced from an active spec and ready for implementation.
+- `in-progress`: implementation has started.
+- `review`: implementation is awaiting verification.
+- `done`: verified and moved out of active execution.
 
 ## Packs
 
@@ -120,13 +129,15 @@ dot-ai doctor
 
 ## Proof Before Expansion
 
-`.ai Standard v0.1` is intentionally conservative. New standard primitives,
-schemas, and governance surfaces should wait until public proof runs show that
+`.ai Standard v0.1` is intentionally conservative. New standard primitives
+beyond stories and proof evidence should wait until public proof runs show that
 the current directory improves real product-building outcomes.
 
 The proof surface is implementation-level, not a new core primitive:
 
 - `dot-ai prove <scenario>` creates an A/B proof run.
+- `dot-ai prove run <proof-run-dir>` records command evidence into the proof
+  verdict.
 - `dot-ai prove score <proof-run-dir>` validates completed evidence and
   computes baseline-versus-candidate deltas.
 - Scenario fixtures define rough prompts, acceptance criteria, and rubrics.

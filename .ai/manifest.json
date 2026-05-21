@@ -35,6 +35,11 @@
       "required": true
     },
     {
+      "name": "stories",
+      "path": ".ai/stories",
+      "required": true
+    },
+    {
       "name": "plans",
       "path": ".ai/plans",
       "required": true
@@ -91,11 +96,14 @@
     "checklist": ".ai/guards/CHECKLIST.md",
     "commands": [
       "dot-ai doctor",
-      "dot-ai score <spec>"
+      "dot-ai score <spec>",
+      "dot-ai story validate <story>",
+      "dot-ai prove score <proof-run-dir>"
     ]
   },
   "activeWork": {
     "specs": ".ai/specs/active",
+    "stories": ".ai/stories",
     "plans": ".ai/plans",
     "progress": ".ai/progress",
     "buildReport": ".ai/build-report.md"

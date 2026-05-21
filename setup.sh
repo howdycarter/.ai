@@ -35,6 +35,10 @@ mkdir -p "$AI_DIR/specs/active"
 mkdir -p "$AI_DIR/specs/draft"
 mkdir -p "$AI_DIR/specs/completed"
 mkdir -p "$AI_DIR/specs/rejected"
+mkdir -p "$AI_DIR/stories/ready"
+mkdir -p "$AI_DIR/stories/in-progress"
+mkdir -p "$AI_DIR/stories/review"
+mkdir -p "$AI_DIR/stories/done"
 mkdir -p "$AI_DIR/plans"
 mkdir -p "$AI_DIR/decisions"
 mkdir -p "$AI_DIR/skills"
@@ -60,6 +64,7 @@ cat > "$AI_DIR/manifest.json" << ENDOFFILE
     { "name": "STACK.md", "path": ".ai/STACK.md", "required": true },
     { "name": "CONTEXT.md", "path": ".ai/CONTEXT.md", "required": true },
     { "name": "specs", "path": ".ai/specs", "required": true },
+    { "name": "stories", "path": ".ai/stories", "required": true },
     { "name": "plans", "path": ".ai/plans", "required": true },
     { "name": "decisions", "path": ".ai/decisions", "required": true },
     { "name": "skills", "path": ".ai/skills", "required": true },
@@ -75,10 +80,11 @@ cat > "$AI_DIR/manifest.json" << ENDOFFILE
   ],
   "guards": {
     "checklist": ".ai/guards/CHECKLIST.md",
-    "commands": ["dot-ai doctor", "dot-ai score <spec>"]
+    "commands": ["dot-ai doctor", "dot-ai score <spec>", "dot-ai story validate <story>", "dot-ai prove score <proof-run-dir>"]
   },
   "activeWork": {
     "specs": ".ai/specs/active",
+    "stories": ".ai/stories",
     "plans": ".ai/plans",
     "progress": ".ai/progress",
     "buildReport": ".ai/build-report.md"
@@ -453,6 +459,34 @@ and plan review will determine implementation details.
 - Links to designs, mockups, screenshots
 - Links to related specs or decisions
 - Links to external documentation
+ENDOFFILE
+
+# --- Story Template ---
+cat > "$AI_DIR/stories/_TEMPLATE.md" << 'ENDOFFILE'
+# Story: {Story Title}
+
+**Status:** ready | in-progress | review | done
+**Spec:** .ai/specs/active/{spec}.md
+**Created:** {YYYY-MM-DD}
+**Last updated:** {YYYY-MM-DD}
+
+## Goal
+What implementation slice this story completes.
+
+## Acceptance criteria
+- [ ] GIVEN {context}, WHEN {action}, THEN {expected result}
+
+## Implementation notes
+- Files or components likely to change.
+
+## Verification
+- Test command:
+- Build command:
+
+## Evidence
+- PR:
+- Screenshots:
+- Notes:
 ENDOFFILE
 
 # --- Quality Rubric ---

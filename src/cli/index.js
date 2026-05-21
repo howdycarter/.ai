@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const STANDARD_VERSION = '0.1.0';
 
@@ -10,6 +11,10 @@ const CORE_DIRS = [
   '.ai/specs/draft',
   '.ai/specs/completed',
   '.ai/specs/rejected',
+  '.ai/stories/ready',
+  '.ai/stories/in-progress',
+  '.ai/stories/review',
+  '.ai/stories/done',
   '.ai/plans',
   '.ai/decisions',
   '.ai/skills',
@@ -25,6 +30,7 @@ const CORE_FILES = [
   '.ai/AGENTS.md',
   '.ai/STACK.md',
   '.ai/CONTEXT.md',
+  '.ai/stories/_TEMPLATE.md',
   '.ai/skills/help.md',
   '.ai/skills/interview.md',
 ];
@@ -36,6 +42,7 @@ const PRIMITIVES = [
   'STACK.md',
   'CONTEXT.md',
   'specs',
+  'stories',
   'plans',
   'decisions',
   'skills',
@@ -120,6 +127,7 @@ function manifestTemplate(projectName) {
       },
       activeWork: {
         specs: '.ai/specs/active',
+        stories: '.ai/stories',
         plans: '.ai/plans',
         progress: '.ai/progress',
         buildReport: '.ai/build-report.md',
@@ -141,6 +149,7 @@ function coreTemplates(projectName) {
     '.ai/skills/interview.md': interviewSkill(),
     '.ai/specs/_TEMPLATE.md': specTemplate(),
     '.ai/specs/_QUALITY_RUBRIC.md': qualityRubric(),
+    '.ai/stories/_TEMPLATE.md': storyTemplate(),
     '.ai/guards/CHECKLIST.md': '# Pre-Merge Checklist\n\n- [ ] Spec acceptance criteria pass\n- [ ] Tests pass\n- [ ] Lint/typecheck pass\n- [ ] No secrets or private data in artifacts\n',
     '.ai/guards/BOUNDARIES.md': '# Agent Boundaries\n\nAgents must not change auth, billing, secrets, deployment, or security policy without explicit operator approval.\n',
     '.ai/guards/CONCURRENCY.md': '# Concurrency Rules\n\nUse separate branches and non-overlapping file ownership for parallel agent work.\n',
@@ -165,6 +174,10 @@ function specTemplate() {
 
 function qualityRubric() {
   return `# Spec Quality Rubric\n\nScore each dimension 0-2. Total >= 14 is ready for active work.\n\n- Clarity\n- Completeness\n- Testability\n- Scoping\n- Design integration\n- Dependencies\n- Architecture alignment\n- Sizing accuracy\n`;
+}
+
+function storyTemplate() {
+  return `# Story: {Story Title}\n\n**Status:** ready | in-progress | review | done\n**Spec:** .ai/specs/active/{spec}.md\n**Created:** {YYYY-MM-DD}\n**Last updated:** {YYYY-MM-DD}\n\n## Goal\nWhat implementation slice this story completes.\n\n## Acceptance criteria\n- [ ] GIVEN {context}, WHEN {action}, THEN {expected result}\n\n## Implementation notes\n- Files or components likely to change.\n\n## Verification\n- Test command:\n- Build command:\n\n## Evidence\n- PR:\n- Screenshots:\n- Notes:\n`;
 }
 
 function buildReportTemplate(projectName, activeSpecs) {
@@ -303,6 +316,9 @@ function prove(options) {
   if (scenarioName === 'score') {
     return scoreProofRun(options);
   }
+  if (scenarioName === 'run') {
+    return runProofCommand(options);
+  }
 
   if (!scenarioName) {
     return fail('Usage: dot-ai prove <scenario> --baseline <ref> --candidate <ref> --out <dir>\n');
@@ -332,6 +348,59 @@ function prove(options) {
   fs.writeFileSync(path.join(outDir, 'build-report.md'), proofBuildReport(verdict, scenario.prompt));
 
   return ok(`Created proof run: ${outDir}\n`);
+}
+
+function runProofCommand(options) {
+  const runDirArg = options._[1];
+  const command = options.command;
+  const ref = options.ref || 'candidate';
+
+  if (!runDirArg || !command) {
+    return fail('Usage: dot-ai prove run <proof-run-dir> --ref <baseline|candidate> --command <command>\n');
+  }
+
+  const root = resolveRoot(options);
+  const runDir = path.resolve(root, runDirArg);
+  const verdictPath = path.join(runDir, 'verdict.json');
+  if (!fs.existsSync(verdictPath)) {
+    return fail(`Missing proof run verdict: ${verdictPath}\n`);
+  }
+
+  let verdict;
+  try {
+    verdict = readJson(verdictPath);
+  } catch (error) {
+    return fail(`Invalid proof run verdict: ${error.message}\n`);
+  }
+
+  const startedAt = new Date();
+  const result = spawnSync(command, {
+    cwd: options.cwd ? path.resolve(root, options.cwd) : root,
+    encoding: 'utf8',
+    shell: true,
+  });
+  const durationMs = Date.now() - startedAt.getTime();
+  const exitCode = typeof result.status === 'number' ? result.status : 1;
+  const entry = {
+    ref,
+    command,
+    status: exitCode === 0 ? 'pass' : 'fail',
+    exitCode,
+    durationMs,
+    startedAt: startedAt.toISOString(),
+    stdout: trimCommandOutput(result.stdout || ''),
+    stderr: trimCommandOutput(result.stderr || result.error?.message || ''),
+  };
+
+  verdict.commands = Array.isArray(verdict.commands)
+    ? [...verdict.commands.filter((item) => !/^Record .* command/.test(item.command)), entry]
+    : [entry];
+  fs.writeFileSync(verdictPath, `${JSON.stringify(verdict, null, 2)}\n`);
+
+  if (exitCode === 0) {
+    return ok(`Recorded proof command: ${command}\n`);
+  }
+  return fail(`Proof command failed (${exitCode}): ${command}\n`);
 }
 
 function scoreProofRun(options) {
@@ -371,6 +440,116 @@ function scoreProofRun(options) {
     `Final product outcome: candidate ${scored.scores.finalOutcome.candidateTotal}/${scored.scores.finalOutcome.max} (${formatDelta(scored.scores.finalOutcome.candidateDelta)})`,
     '',
   ].join('\n'));
+}
+
+function story(options) {
+  const action = options._[0];
+
+  switch (action) {
+    case 'create':
+      return createStory(options);
+    case 'validate':
+      return validateStoryCommand(options);
+    case 'done':
+      return completeStory(options);
+    default:
+      return fail('Usage: dot-ai story <create|validate|done>\n');
+  }
+}
+
+function createStory(options) {
+  const slug = options._[1];
+  if (!slug) {
+    return fail('Usage: dot-ai story create <slug> --title <title> --spec <spec-path> --acceptance <criterion>\n');
+  }
+
+  const root = resolveRoot(options);
+  const title = options.title || titleize(slug);
+  const spec = options.spec || '.ai/specs/active/unknown.md';
+  const acceptance = options.acceptance || 'GIVEN context, WHEN the story is implemented, THEN the acceptance criterion is satisfied.';
+  const storyPath = path.join(root, '.ai/stories/ready', `${slug}.md`);
+  const now = new Date().toISOString().slice(0, 10);
+  const content = [
+    `# Story: ${title}`,
+    '',
+    '**Status:** ready',
+    `**Spec:** ${spec}`,
+    `**Created:** ${now}`,
+    `**Last updated:** ${now}`,
+    '',
+    '## Goal',
+    `${title} is implemented as one focused slice of the referenced spec.`,
+    '',
+    '## Acceptance criteria',
+    `- [ ] ${acceptance}`,
+    '',
+    '## Implementation notes',
+    '- Keep this story small enough for one implementation session.',
+    '- Update tests and proof evidence when the story is completed.',
+    '',
+    '## Verification',
+    '- Test command:',
+    '- Build command:',
+    '',
+    '## Evidence',
+    '- PR:',
+    '- Screenshots:',
+    '- Notes:',
+    '',
+  ].join('\n');
+
+  writeFileOnce(storyPath, content, Boolean(options.force));
+  return ok(`Created story: ${storyPath}\n`);
+}
+
+function validateStoryCommand(options) {
+  const storyPathArg = options._[1];
+  if (!storyPathArg) {
+    return fail('Usage: dot-ai story validate <story-path>\n');
+  }
+
+  const storyPath = path.resolve(storyPathArg);
+  if (!fs.existsSync(storyPath)) {
+    return fail(`Story not found: ${storyPath}\n`);
+  }
+
+  const findings = validateStoryContent(fs.readFileSync(storyPath, 'utf8'));
+  if (findings.length > 0) {
+    return fail(`${findings.join('\n')}\n`);
+  }
+
+  return ok(`Story ready for implementation: ${storyPath}\n`);
+}
+
+function completeStory(options) {
+  const storyPathArg = options._[1];
+  if (!storyPathArg) {
+    return fail('Usage: dot-ai story done <story-path>\n');
+  }
+
+  const root = resolveRoot(options);
+  const storyPath = path.resolve(storyPathArg);
+  if (!fs.existsSync(storyPath)) {
+    return fail(`Story not found: ${storyPath}\n`);
+  }
+
+  const content = fs.readFileSync(storyPath, 'utf8');
+  const findings = validateStoryContent(content);
+  if (findings.length > 0) {
+    return fail(`Story is not complete enough to mark done:\n${findings.join('\n')}\n`);
+  }
+
+  const updated = content
+    .replace(/\*\*Status:\*\*\s*[^\n]+/, '**Status:** done')
+    .replace(/\*\*Last updated:\*\*\s*[^\n]+/, `**Last updated:** ${new Date().toISOString().slice(0, 10)}`);
+  const donePath = path.join(root, '.ai/stories/done', path.basename(storyPath));
+  fs.mkdirSync(path.dirname(donePath), { recursive: true });
+  fs.writeFileSync(donePath, updated);
+  if (path.resolve(donePath) !== storyPath) {
+    fs.rmSync(storyPath);
+  }
+
+  return ok(`Completed story: ${donePath}\n`);
 }
 
 function installPack(options) {
@@ -415,6 +594,43 @@ function unresolvedPlaceholders(content) {
     findings.push('example acceptance text');
   }
   return findings;
+}
+
+function validateStoryContent(content) {
+  const findings = [];
+
+  if (!/^# Story:\s+\S+/m.test(content)) {
+    findings.push('Missing story title');
+  }
+  if (!/\*\*Status:\*\*\s*(ready|in-progress|review|done)\b/i.test(content)) {
+    findings.push('Missing valid status');
+  }
+  if (!/\*\*Spec:\*\*\s*\S+/.test(content)) {
+    findings.push('Missing spec reference');
+  }
+  if (!/^## Acceptance criteria/m.test(content) || !/^- \[[ xX]\]\s+\S+/m.test(content)) {
+    findings.push('Missing acceptance criteria');
+  }
+  if (!/^## Implementation notes/m.test(content)) {
+    findings.push('Missing implementation notes');
+  }
+  if (unresolvedPlaceholders(content).length > 0) {
+    findings.push('Story still contains template placeholders');
+  }
+
+  return findings;
+}
+
+function trimCommandOutput(output) {
+  return output.length > 4000 ? `${output.slice(0, 4000)}\n[truncated]` : output;
+}
+
+function titleize(slug) {
+  return slug
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
 }
 
 function loadProofScenario(scenarioDir, scenarioName) {
@@ -678,6 +894,8 @@ async function run(argv) {
       return share(options);
     case 'prove':
       return prove(options);
+    case 'story':
+      return story(options);
     case 'pack':
       if (options._[0] === 'install') {
         options._.shift();
@@ -686,7 +904,7 @@ async function run(argv) {
       return fail('Usage: dot-ai pack install <pack>\n');
     case 'help':
     case undefined:
-      return ok('Usage: dot-ai <init|doctor|status|score|prove|share|pack|conformance>\n');
+      return ok('Usage: dot-ai <init|doctor|status|score|story|prove|share|pack|conformance>\n');
     default:
       return fail(`Unknown command: ${command}\n`);
   }
