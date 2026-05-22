@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dot-ai.dev/schemas/goal-0.1.0.schema.json",
+  "title": ".ai Goal",
+  "type": "object",
+  "required": [
+    "title",
+    "status",
+    "objective",
+    "source",
+    "definitionOfDone"
+  ],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "active",
+        "completed"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "codexGoalPrompt": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidenceRequirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "definitionOfDone": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "completionAudit": {
+      "type": "string"
+    }
+  }
+}

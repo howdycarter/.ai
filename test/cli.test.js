@@ -31,6 +31,9 @@ describe('dot-ai CLI', () => {
     assert.equal(fs.existsSync(path.join(root, '.ai', 'skills', 'help.md')), true);
     assert.equal(fs.existsSync(path.join(root, '.ai', 'stories', 'ready')), true);
     assert.equal(fs.existsSync(path.join(root, '.ai', 'stories', '_TEMPLATE.md')), true);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'goals', 'active')), true);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'goals', '_TEMPLATE.md')), true);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'skills', 'codex-goal.md')), true);
   });
 
   it('doctor reports a valid initialized project', async () => {
@@ -387,6 +390,72 @@ describe('dot-ai CLI', () => {
     assert.match(result.stdout, /Path: .*active-story\.md/);
   });
 
+  it('creates a Codex-ready goal from a spec', async () => {
+    const root = makeTempProject('goal-spec');
+    await run(['init', '--dir', root, '--yes']);
+    const specPath = path.join(root, '.ai', 'specs', 'active', 'billing.md');
+    writeFile(specPath, [
+      '# Spec: Billing Settings',
+      '',
+      '## Problem',
+      'Admins need to manage billing details without support.',
+      '',
+      '## Acceptance criteria',
+      '- [ ] GIVEN an admin, WHEN billing settings save, THEN the updated details persist.',
+    ].join('\n'));
+
+    const result = await run(['goal', 'create', 'billing-settings', '--dir', root, '--from-spec', specPath]);
+    const goalPath = path.join(root, '.ai', 'goals', 'active', 'billing-settings.md');
+    const goal = fs.readFileSync(goalPath, 'utf8');
+
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /Created goal/);
+    assert.match(result.stdout, /\/goal/);
+    assert.match(goal, /# Goal: Billing Settings/);
+    assert.match(goal, /\*\*Status:\*\* active/);
+    assert.match(goal, /\*\*Source:\*\* .*billing\.md/);
+    assert.match(goal, /Codex \/goal Prompt/);
+    assert.match(goal, /Run a rigorous implementation of Billing Settings/);
+    assert.match(goal, /Do not mark complete until every acceptance criterion/);
+    assert.match(goal, /Completion Audit/);
+  });
+
+  it('creates a Codex-ready goal from a proof run', async () => {
+    const root = makeTempProject('goal-proof');
+    await run(['init', '--dir', root, '--yes']);
+    const out = path.join(root, 'proof-runs', 'invoice-app');
+    await run(['prove', 'invoice-app', '--dir', root, '--baseline', 'old-ai', '--candidate', 'new-ai', '--out', out]);
+
+    const result = await run(['goal', 'create', 'invoice-proof', '--dir', root, '--from-proof', out]);
+    const goal = fs.readFileSync(path.join(root, '.ai', 'goals', 'active', 'invoice-proof.md'), 'utf8');
+
+    assert.equal(result.code, 0);
+    assert.match(goal, /Run a rigorous invoice-app proof run/);
+    assert.match(goal, /Baseline: old-ai/);
+    assert.match(goal, /Candidate: new-ai/);
+    assert.match(goal, /verdict\.json/);
+    assert.match(goal, /build-report\.md/);
+  });
+
+  it('reports and completes goals', async () => {
+    const root = makeTempProject('goal-status');
+    await run(['init', '--dir', root, '--yes']);
+    await run(['goal', 'create', 'ship-proof', '--dir', root, '--objective', 'Ship the proof report with scored evidence.']);
+
+    const status = await run(['goal', 'status', '--dir', root]);
+    const complete = await run(['goal', 'complete', 'ship-proof', '--dir', root]);
+    const completedPath = path.join(root, '.ai', 'goals', 'completed', 'ship-proof.md');
+    const completed = fs.readFileSync(completedPath, 'utf8');
+
+    assert.equal(status.code, 0);
+    assert.match(status.stdout, /Active goals: 1/);
+    assert.match(status.stdout, /ship-proof\.md/);
+    assert.equal(complete.code, 0);
+    assert.match(complete.stdout, /Completed goal/);
+    assert.equal(fs.existsSync(path.join(root, '.ai', 'goals', 'active', 'ship-proof.md')), false);
+    assert.match(completed, /\*\*Status:\*\* completed/);
+  });
+
   it('captures baseline and candidate proof commands with prove auto', async () => {
     const root = makeTempProject('prove-auto');
     const baselineDir = path.join(root, 'baseline');
@@ -487,6 +556,15 @@ describe('dot-ai CLI', () => {
     ].sort());
     assert.equal(pkg.scripts.quality, 'npm test && node src/cli/index.js doctor && npm run pack:dry-run');
     assert.equal(pkg.scripts['pack:dry-run'], 'npm pack --dry-run');
+  });
+
+  it('ships a goal schema', () => {
+    const schema = JSON.parse(fs.readFileSync(path.join(repoRoot, 'schemas', 'goal.schema.json'), 'utf8'));
+
+    assert.equal(schema.title, '.ai Goal');
+    assert.equal(schema.required.includes('objective'), true);
+    assert.equal(schema.properties.status.enum.includes('active'), true);
+    assert.equal(schema.properties.status.enum.includes('completed'), true);
   });
 
   it('records proof command evidence into verdict data', async () => {

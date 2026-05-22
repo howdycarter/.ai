@@ -40,6 +40,11 @@
       "required": true
     },
     {
+      "name": "goals",
+      "path": ".ai/goals",
+      "required": true
+    },
+    {
       "name": "plans",
       "path": ".ai/plans",
       "required": true
@@ -98,12 +103,14 @@
       "dot-ai doctor",
       "dot-ai score <spec>",
       "dot-ai story validate <story>",
+      "dot-ai goal status",
       "dot-ai prove score <proof-run-dir>"
     ]
   },
   "activeWork": {
     "specs": ".ai/specs/active",
     "stories": ".ai/stories",
+    "goals": ".ai/goals/active",
     "plans": ".ai/plans",
     "progress": ".ai/progress",
     "buildReport": ".ai/build-report.md"

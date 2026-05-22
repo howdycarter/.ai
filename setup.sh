@@ -39,6 +39,8 @@ mkdir -p "$AI_DIR/stories/ready"
 mkdir -p "$AI_DIR/stories/in-progress"
 mkdir -p "$AI_DIR/stories/review"
 mkdir -p "$AI_DIR/stories/done"
+mkdir -p "$AI_DIR/goals/active"
+mkdir -p "$AI_DIR/goals/completed"
 mkdir -p "$AI_DIR/plans"
 mkdir -p "$AI_DIR/decisions"
 mkdir -p "$AI_DIR/skills"
@@ -65,6 +67,7 @@ cat > "$AI_DIR/manifest.json" << ENDOFFILE
     { "name": "CONTEXT.md", "path": ".ai/CONTEXT.md", "required": true },
     { "name": "specs", "path": ".ai/specs", "required": true },
     { "name": "stories", "path": ".ai/stories", "required": true },
+    { "name": "goals", "path": ".ai/goals", "required": true },
     { "name": "plans", "path": ".ai/plans", "required": true },
     { "name": "decisions", "path": ".ai/decisions", "required": true },
     { "name": "skills", "path": ".ai/skills", "required": true },
@@ -80,11 +83,12 @@ cat > "$AI_DIR/manifest.json" << ENDOFFILE
   ],
   "guards": {
     "checklist": ".ai/guards/CHECKLIST.md",
-    "commands": ["dot-ai doctor", "dot-ai score <spec>", "dot-ai story validate <story>", "dot-ai prove score <proof-run-dir>"]
+    "commands": ["dot-ai doctor", "dot-ai score <spec>", "dot-ai story validate <story>", "dot-ai goal status", "dot-ai prove score <proof-run-dir>"]
   },
   "activeWork": {
     "specs": ".ai/specs/active",
     "stories": ".ai/stories",
+    "goals": ".ai/goals/active",
     "plans": ".ai/plans",
     "progress": ".ai/progress",
     "buildReport": ".ai/build-report.md"
@@ -489,6 +493,44 @@ What implementation slice this story completes.
 - Notes:
 ENDOFFILE
 
+# --- Goal Template ---
+cat > "$AI_DIR/goals/_TEMPLATE.md" << 'ENDOFFILE'
+# Goal: {Goal Title}
+
+**Status:** active | completed
+**Source:** .ai/specs/active/{source}.md | .ai/stories/ready/{story}.md | proof-runs/{name}
+**Created:** {YYYY-MM-DD}
+**Last updated:** {YYYY-MM-DD}
+
+## Objective
+Preserve the full user objective here. Do not shrink it to the current turn.
+
+## Codex /goal Prompt
+Paste this section into Codex `/goal` when you want the agent to keep pursuing
+the objective across turns.
+
+## Constraints
+- Use current repo state as authoritative.
+- Keep markdown artifacts canonical.
+- Do not mark complete until evidence proves every requirement.
+
+## Evidence Requirements
+- Tests/commands:
+- Files/artifacts:
+- Screenshots/reports:
+
+## Definition of Done
+- [ ] Every explicit requirement is implemented or honestly marked out of scope.
+- [ ] Required commands pass or failures are captured and explained.
+- [ ] Required artifacts exist and have been inspected.
+- [ ] Final analysis reports the outcome honestly.
+
+## Completion Audit
+Before marking this goal complete, inspect current-state evidence for every
+requirement and record whether it proves completion, contradicts completion, is
+incomplete, or is missing.
+ENDOFFILE
+
 # --- Quality Rubric ---
 cat > "$AI_DIR/specs/_QUALITY_RUBRIC.md" << 'ENDOFFILE'
 # Spec Quality Rubric
@@ -601,6 +643,27 @@ vague request that is not yet implementation-ready.
 - Do not start implementation during the interview.
 - Mark unconfirmed inferences with [ASSUMPTION].
 - Keep markdown artifacts as the record.
+ENDOFFILE
+
+cat > "$AI_DIR/skills/codex-goal.md" << 'ENDOFFILE'
+# Skill: Codex Goal
+
+## When to use
+Use when turning a .ai spec, story, proof run, or explicit objective into a
+persistent Codex /goal.
+
+## Flow
+1. Identify the source artifact: active spec, story, proof run, or operator objective.
+2. Preserve the full objective. Do not shrink it to the current turn.
+3. Generate a concise /goal prompt with constraints, evidence requirements, and definition of done.
+4. Include a completion audit that forces Codex to prove every requirement from current-state evidence before marking the goal complete.
+5. Store the markdown goal in .ai/goals/active/ so future sessions can resume it.
+
+## Rules
+- The goal must be durable across turns.
+- Markdown remains canonical; Codex /goal text is generated from the .ai goal file.
+- Include exact files, commands, proof reports, screenshots, tests, or other evidence required to prove completion.
+- Do not mark complete from intent, partial progress, or plausible success. Completion requires evidence.
 ENDOFFILE
 
 cat > "$AI_DIR/skills/new-feature.md" << 'ENDOFFILE'
@@ -1062,6 +1125,8 @@ touch "$AI_DIR/specs/active/.gitkeep"
 touch "$AI_DIR/specs/draft/.gitkeep"
 touch "$AI_DIR/specs/completed/.gitkeep"
 touch "$AI_DIR/specs/rejected/.gitkeep"
+touch "$AI_DIR/goals/active/.gitkeep"
+touch "$AI_DIR/goals/completed/.gitkeep"
 touch "$AI_DIR/plans/.gitkeep"
 touch "$AI_DIR/decisions/.gitkeep"
 touch "$AI_DIR/progress/.gitkeep"

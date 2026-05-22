@@ -29,7 +29,7 @@
     },
     "primitives": {
       "type": "array",
-      "minItems": 13,
+      "minItems": 14,
       "items": {
         "$ref": "#/$defs/pathEntry"
       }
@@ -63,6 +63,7 @@
       "required": [
         "specs",
         "stories",
+        "goals",
         "plans",
         "progress",
         "buildReport"
@@ -72,6 +73,9 @@
           "type": "string"
         },
         "stories": {
+          "type": "string"
+        },
+        "goals": {
           "type": "string"
         },
         "plans": {

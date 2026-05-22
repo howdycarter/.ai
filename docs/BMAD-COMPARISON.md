@@ -11,10 +11,10 @@ repo-native standard layer with a proof-first wedge.
 | Area | .ai | BMAD |
 |---|---:|---:|
 | Public release | No npm release yet | `bmad-method@6.7.1` |
-| Fresh install size | 18 files | 236 files in the tested Claude Code install |
-| Installed skills | 8 `.ai/skills` files | 44 Claude skills |
+| Fresh install size | 20 files | 236 files in the tested Claude Code install |
+| Installed skills | 9 `.ai/skills` files | 44 Claude skills |
 | GitHub Actions workflows | 0 | 5 |
-| Tests | 20 CLI tests | 17 test files plus lint/docs validation |
+| Tests | 25 CLI tests | 17 test files plus lint/docs validation |
 | Core position | Open repo context standard | Full agile AI development method |
 | Proof loop | First-class `dot-ai prove` | Not the central product surface |
 
@@ -42,6 +42,9 @@ repo-native standard layer with a proof-first wedge.
 - Proof orientation: `dot-ai prove`, `prove auto`, verdict files, acceptance
   coverage, command evidence, and build reports are designed to answer whether
   the workflow improved the shipped product.
+- Codex goal readiness: `.ai/goals/` and `dot-ai goal` compile specs, stories,
+  proof runs, or raw objectives into durable Codex `/goal` handoffs with
+  evidence requirements and completion audits.
 - Lower ceremony: `.ai` can fit into existing repos without adopting a full
   methodology.
 

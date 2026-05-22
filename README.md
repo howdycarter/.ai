@@ -6,7 +6,7 @@ In March 2026, Linear declared issue tracking dead. Google shipped DESIGN.md —
 
 Nobody assembled them into one system. Until now.
 
-**.ai/ is a directory you add to any repo that replaces your project management tool entirely.** Thirteen markdown primitives handle your backlog, story slices, sprint planning, design system, standups, QA checklists, onboarding docs, and deployment gates. No SaaS subscription. No ticket system. No ceremonies. Just version-controlled markdown that AI agents read natively and humans read easily.
+**.ai/ is a directory you add to any repo that replaces your project management tool entirely.** Fourteen markdown primitives handle your backlog, story slices, Codex goals, sprint planning, design system, standups, QA checklists, onboarding docs, and deployment gates. No SaaS subscription. No ticket system. No ceremonies. Just version-controlled markdown that AI agents read natively and humans read easily.
 
 The next step is the **.ai Standard v0.1**: a founder-led open standard for repo-native AI development context. `.ai/manifest.json` gives tools a machine-readable map of your project context, schemas define conformance, packs extend the core, and `dot-ai doctor` tells you whether a repo is agent-ready.
 
@@ -16,6 +16,7 @@ The product claim is proof-first, not hype-first. `dot-ai prove` creates a struc
 npx github:howdycarter/.ai init
 npx github:howdycarter/.ai doctor
 npx github:howdycarter/.ai status
+npx github:howdycarter/.ai goal create invoice-proof --from-proof proof-runs/invoice-app
 npx github:howdycarter/.ai story next
 npx github:howdycarter/.ai prove auto invoice-app --baseline-dir ../old-build --candidate-dir ../new-build --command "npm test"
 npx github:howdycarter/.ai share
@@ -103,7 +104,7 @@ You could design your own directory structure, write your own templates, and fig
 
 ## How it works
 
-![.ai/ Technical Process — All 12 Primitives](images/diagram-2-technical-process.png)
+![.ai/ Technical Process — Core Primitives](images/diagram-2-technical-process.png)
 
 ### The five-phase workflow
 
@@ -144,7 +145,7 @@ Zero percent writing code. Your entire value is in the quality of the context yo
 
 ## What's in the box
 
-### The 13 primitives
+### The 14 primitives
 
 | # | File | Replaces | Answers |
 |---|------|----------|---------|
@@ -155,12 +156,13 @@ Zero percent writing code. Your entire value is in the quality of the context yo
 | 5 | `CONTEXT.md` | *(no traditional equivalent)* | How much context to load per task? |
 | 6 | `specs/` | Jira tickets, Linear issues, user stories, PRDs | What exactly needs to be built? |
 | 7 | `stories/` | Implementation tickets, sprint stories | What focused slice is being built now? |
-| 8 | `plans/` | Sprint planning, task breakdowns | How will we implement it? |
-| 9 | `decisions/` | Meeting notes, Slack threads, architecture docs | Why did we choose X over Y? |
-| 10 | `skills/` | Process docs, runbooks, SOPs | What's the workflow for this work? |
-| 11 | `progress/` | Standups, status updates, sprint reviews | What happened? |
-| 12 | `retrospectives/` | Sprint retros, quarterly reviews | Is our system improving? |
-| 13 | `guards/` | QA process, security review, deploy checklists | What must pass before shipping? |
+| 8 | `goals/` | Long-running Codex objectives, handoff docs | What should Codex keep pursuing until verified? |
+| 9 | `plans/` | Sprint planning, task breakdowns | How will we implement it? |
+| 10 | `decisions/` | Meeting notes, Slack threads, architecture docs | Why did we choose X over Y? |
+| 11 | `skills/` | Process docs, runbooks, SOPs | What's the workflow for this work? |
+| 12 | `progress/` | Standups, status updates, sprint reviews | What happened? |
+| 13 | `retrospectives/` | Sprint retros, quarterly reviews | Is our system improving? |
+| 14 | `guards/` | QA process, security review, deploy checklists | What must pass before shipping? |
 
 ### Agent-agnostic by design
 
@@ -187,7 +189,7 @@ version:
 - Markdown remains the source of truth.
 - `.ai/manifest.json` lets agents and tools discover project context.
 - JSON Schemas define conformance for manifests, specs, stories, plans,
-  decisions, progress checkpoints, retrospectives, and guards.
+  goals, decisions, progress checkpoints, retrospectives, and guards.
 - Packs add templates, adapters, guards, workflows, and examples without
   bloating the core.
 - The reference CLI validates and accelerates the directory, but does not
@@ -235,6 +237,22 @@ npx dot-ai story done .ai/stories/ready/invoice-totals.md
 ```
 
 Story states are `ready`, `in-progress`, `review`, and `done`. A story must reference its parent spec, include acceptance criteria, and include implementation notes before it can be completed.
+
+## Codex goal readiness
+
+`.ai/goals/` turns specs, stories, proof runs, or raw objectives into durable
+Codex `/goal` prompts with constraints, evidence requirements, definition of
+done, and a completion audit.
+
+```bash
+npx github:howdycarter/.ai goal create billing-settings --from-spec .ai/specs/active/billing-settings.md
+npx github:howdycarter/.ai goal create invoice-proof --from-proof proof-runs/invoice-app
+npx github:howdycarter/.ai goal status
+npx github:howdycarter/.ai goal complete invoice-proof
+```
+
+The goal file stays in git at `.ai/goals/active/<name>.md`. The generated
+`## Codex /goal Prompt` section is the copy-paste handoff for Codex.
 
 ## 15-minute path
 

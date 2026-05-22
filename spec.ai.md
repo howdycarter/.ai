@@ -13,7 +13,7 @@ guardrails live.
 - **Git is the database.** Context changes travel with code changes.
 - **Agents can discover state.** `.ai/manifest.json` points tools to the active
   work, adapters, guards, and standard version.
-- **Small core, useful extensions.** The 13 primitives are stable. Packs add
+- **Small core, useful extensions.** The 14 primitives are stable. Packs add
   domain-specific behavior without fragmenting the core.
 - **Human judgment stays central.** `.ai` improves interviews, plans, reviews,
   and checkpoints; it does not pretend product judgment is automatic.
@@ -32,6 +32,7 @@ Every valid `.ai` project includes:
 ├── CONTEXT.md
 ├── specs/
 ├── stories/
+├── goals/
 ├── plans/
 ├── decisions/
 ├── skills/
@@ -60,8 +61,9 @@ Required fields:
 - `primitives`: enabled primitive list with names and paths.
 - `adapters`: configured agent/IDE adapters.
 - `guards`: checklist and command metadata.
-- `activeWork`: paths for specs, plans, progress, and build report output.
+- `activeWork`: paths for specs, goals, plans, progress, and build report output.
 - `activeWork.stories`: path to story lifecycle state directories when enabled.
+- `activeWork.goals`: path to active Codex-ready goal files when enabled.
 
 ## Lifecycle States
 
@@ -88,6 +90,17 @@ Stories use these states:
 - `in-progress`: implementation has started.
 - `review`: implementation is awaiting verification.
 - `done`: verified and moved out of active execution.
+
+Goals use these states:
+
+- `active`: Codex or another agent should keep pursuing the objective across
+  turns until evidence proves completion.
+- `completed`: completion audit is satisfied and the goal is archived.
+
+Goal files must preserve the full objective, source artifact, Codex `/goal`
+prompt, constraints, evidence requirements, definition of done, and completion
+audit. Goals can be compiled from specs, stories, proof runs, or explicit
+operator objectives.
 
 ## Packs
 

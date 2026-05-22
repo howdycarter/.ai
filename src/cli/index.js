@@ -15,6 +15,8 @@ const CORE_DIRS = [
   '.ai/stories/in-progress',
   '.ai/stories/review',
   '.ai/stories/done',
+  '.ai/goals/active',
+  '.ai/goals/completed',
   '.ai/plans',
   '.ai/decisions',
   '.ai/skills',
@@ -31,8 +33,10 @@ const CORE_FILES = [
   '.ai/STACK.md',
   '.ai/CONTEXT.md',
   '.ai/stories/_TEMPLATE.md',
+  '.ai/goals/_TEMPLATE.md',
   '.ai/skills/help.md',
   '.ai/skills/interview.md',
+  '.ai/skills/codex-goal.md',
 ];
 
 const PRIMITIVES = [
@@ -43,6 +47,7 @@ const PRIMITIVES = [
   'CONTEXT.md',
   'specs',
   'stories',
+  'goals',
   'plans',
   'decisions',
   'skills',
@@ -128,6 +133,7 @@ function manifestTemplate(projectName) {
       activeWork: {
         specs: '.ai/specs/active',
         stories: '.ai/stories',
+        goals: '.ai/goals/active',
         plans: '.ai/plans',
         progress: '.ai/progress',
         buildReport: '.ai/build-report.md',
@@ -147,9 +153,11 @@ function coreTemplates(projectName) {
     '.ai/CONTEXT.md': `# Context Loading: ${projectName}\n\n## Default order\n1. .ai/manifest.json\n2. .ai/AGENTS.md\n3. The active spec or plan\n4. Relevant decisions and progress checkpoints\n\nLoad the smallest set of files that makes the task solvable.\n`,
     '.ai/skills/help.md': helpSkill(),
     '.ai/skills/interview.md': interviewSkill(),
+    '.ai/skills/codex-goal.md': codexGoalSkill(),
     '.ai/specs/_TEMPLATE.md': specTemplate(),
     '.ai/specs/_QUALITY_RUBRIC.md': qualityRubric(),
     '.ai/stories/_TEMPLATE.md': storyTemplate(),
+    '.ai/goals/_TEMPLATE.md': goalTemplate(),
     '.ai/guards/CHECKLIST.md': '# Pre-Merge Checklist\n\n- [ ] Spec acceptance criteria pass\n- [ ] Tests pass\n- [ ] Lint/typecheck pass\n- [ ] No secrets or private data in artifacts\n',
     '.ai/guards/BOUNDARIES.md': '# Agent Boundaries\n\nAgents must not change auth, billing, secrets, deployment, or security policy without explicit operator approval.\n',
     '.ai/guards/CONCURRENCY.md': '# Concurrency Rules\n\nUse separate branches and non-overlapping file ownership for parallel agent work.\n',
@@ -168,6 +176,10 @@ function interviewSkill() {
   return `# Skill: .ai Interview\n\nUse this to turn rough intent into an implementation-ready spec.\n\n## Flow\n1. Brain dump: ask for all notes, files, sketches, constraints, and forgotten context.\n2. Stakes: classify as hobby, internal, launch, or enterprise/compliance.\n3. Mode: fast, coached, or deep.\n4. Concern scan: UX, security, privacy, data, integrations, migration, monetization, performance, support.\n5. Draft: produce assumptions, decisions, open questions, and a spec draft.\n6. Review lenses: first principles, pre-mortem, edge cases, security/privacy, implementation risk, and go-to-market clarity.\n7. Activate: score the spec and move it to .ai/specs/active only when ready.\n\n## Rules\n- Preserve the operator's language and product judgment.\n- Mark unconfirmed inferences as assumptions.\n- Do not start implementation during the interview.\n`;
 }
 
+function codexGoalSkill() {
+  return `# Skill: Codex Goal\n\nUse this when turning a .ai spec, story, proof run, or explicit objective into a persistent Codex /goal.\n\n## Flow\n1. Identify the source artifact: active spec, story, proof run, or operator objective.\n2. Preserve the full objective. Do not shrink it to the current turn.\n3. Generate a concise /goal prompt with constraints, evidence requirements, and definition of done.\n4. Include a completion audit that forces Codex to prove every requirement from current-state evidence before marking the goal complete.\n5. Store the markdown goal in .ai/goals/active/ so future sessions can resume it.\n\n## Rules\n- The goal must be durable across turns.\n- Markdown remains canonical; Codex /goal text is generated from the .ai goal file.\n- Include exact files, commands, proof reports, screenshots, tests, or other evidence required to prove completion.\n- Do not mark complete from intent, partial progress, or plausible success. Completion requires evidence.\n`;
+}
+
 function specTemplate() {
   return `# Spec: {Feature Name}\n\n**Status:** draft | active | in-progress | review | completed | rejected\n**Priority:** p0-critical | p1-high | p2-medium | p3-low\n**Complexity:** small | medium | large | xl\n**Created:** {YYYY-MM-DD}\n**Last updated:** {YYYY-MM-DD}\n\n## Problem\n\n## Solution\n\n## Requirements\n\n### Functional\n- [ ] The system SHALL...\n\n### Non-functional\n- **Performance:**\n- **Security:**\n- **Accessibility:**\n\n## Acceptance criteria\n- [ ] GIVEN ..., WHEN ..., THEN ...\n\n## UI/UX requirements\n\n## Out of scope\n\n## Dependencies\n\n## Technical notes\n\n## References\n`;
 }
@@ -178,6 +190,10 @@ function qualityRubric() {
 
 function storyTemplate() {
   return `# Story: {Story Title}\n\n**Status:** ready | in-progress | review | done\n**Spec:** .ai/specs/active/{spec}.md\n**Created:** {YYYY-MM-DD}\n**Last updated:** {YYYY-MM-DD}\n\n## Goal\nWhat implementation slice this story completes.\n\n## Acceptance criteria\n- [ ] GIVEN {context}, WHEN {action}, THEN {expected result}\n\n## Implementation notes\n- Files or components likely to change.\n\n## Verification\n- Test command:\n- Build command:\n\n## Evidence\n- PR:\n- Screenshots:\n- Notes:\n`;
+}
+
+function goalTemplate() {
+  return `# Goal: {Goal Title}\n\n**Status:** active | completed\n**Source:** .ai/specs/active/{source}.md | .ai/stories/ready/{story}.md | proof-runs/{name}\n**Created:** {YYYY-MM-DD}\n**Last updated:** {YYYY-MM-DD}\n\n## Objective\nPreserve the full user objective here. Do not shrink it to the current turn.\n\n## Codex /goal Prompt\nPaste this section into Codex /goal when you want the agent to keep pursuing the objective across turns.\n\n## Constraints\n- Use current repo state as authoritative.\n- Keep markdown artifacts canonical.\n- Do not mark complete until evidence proves every requirement.\n\n## Evidence Requirements\n- Tests/commands:\n- Files/artifacts:\n- Screenshots/reports:\n\n## Definition of Done\n- [ ] Every explicit requirement is implemented or honestly marked out of scope.\n- [ ] Required commands pass or failures are captured and explained.\n- [ ] Required artifacts exist and have been inspected.\n- [ ] Final analysis reports the outcome honestly.\n\n## Completion Audit\nBefore marking this goal complete, inspect current-state evidence for every requirement and record whether it proves completion, contradicts completion, is incomplete, or is missing.\n`;
 }
 
 function buildReportTemplate(projectName, activeSpecs) {
@@ -227,8 +243,9 @@ function status(options) {
   const plans = listMarkdown(path.join(root, '.ai/plans'));
   const progress = listMarkdown(path.join(root, '.ai/progress')).slice(-3);
   const storySummary = summarizeStories(root);
+  const goalSummary = summarizeGoals(root);
   const proofSummary = summarizeProofRuns(root);
-  const nextAction = recommendNextAction(activeSpecs, storySummary);
+  const nextAction = recommendNextAction(activeSpecs, storySummary, goalSummary);
   const blockers = [
     ...failures.slice(0, 3),
     ...(proofSummary.unscored.length ? [`Unscored proof runs: ${proofSummary.unscored.join(', ')}`] : []),
@@ -242,6 +259,7 @@ function status(options) {
     `Active specs: ${activeSpecs.length}`,
     `Plans: ${plans.length}`,
     `Stories: ready ${storySummary.counts.ready}, in-progress ${storySummary.counts['in-progress']}, review ${storySummary.counts.review}, done ${storySummary.counts.done}`,
+    `Goals: active ${goalSummary.active.length}, completed ${goalSummary.completed.length}`,
     `Proof runs: total ${proofSummary.total}, scored ${proofSummary.scored.length}, unscored ${proofSummary.unscored.length}`,
     `Recent progress entries: ${progress.length}`,
     '',
@@ -619,6 +637,96 @@ function nextStory(options) {
   return ok('No stories found. Next action: use .ai/skills/interview.md to create an active spec.\n');
 }
 
+function goal(options) {
+  const action = options._[0];
+
+  switch (action) {
+    case 'create':
+      return createGoal(options);
+    case 'status':
+      return goalStatus(options);
+    case 'complete':
+      return completeGoal(options);
+    default:
+      return fail('Usage: dot-ai goal <create|status|complete>\n');
+  }
+}
+
+function createGoal(options) {
+  const slug = options._[1];
+  if (!slug) {
+    return fail('Usage: dot-ai goal create <slug> --from-spec <path> | --from-story <path> | --from-proof <dir> | --objective <text>\n');
+  }
+
+  const root = resolveRoot(options);
+  const now = new Date().toISOString().slice(0, 10);
+  const source = goalSource(root, options);
+  if (source.error) {
+    return fail(source.error);
+  }
+
+  const title = options.title || source.title || titleize(slug);
+  const goalPath = path.join(root, '.ai/goals/active', `${slug}.md`);
+  const content = renderGoal({
+    title,
+    status: 'active',
+    source: source.display,
+    createdAt: now,
+    updatedAt: now,
+    objective: source.objective,
+    prompt: source.prompt,
+    constraints: source.constraints,
+    evidence: source.evidence,
+    done: source.done,
+  });
+
+  writeFileOnce(goalPath, content, Boolean(options.force));
+  return ok([
+    `Created goal: ${goalPath}`,
+    '',
+    'Codex /goal prompt:',
+    source.prompt,
+    '',
+  ].join('\n'));
+}
+
+function goalStatus(options) {
+  const root = resolveRoot(options);
+  const summary = summarizeGoals(root);
+  return ok([
+    '# .ai Goals',
+    '',
+    `Active goals: ${summary.active.length}`,
+    summary.active.length ? summary.active.map((name) => `- ${name}`).join('\n') : '- None',
+    '',
+    `Completed goals: ${summary.completed.length}`,
+    summary.completed.length ? summary.completed.map((name) => `- ${name}`).join('\n') : '- None',
+    '',
+  ].join('\n'));
+}
+
+function completeGoal(options) {
+  const slug = options._[1];
+  if (!slug) {
+    return fail('Usage: dot-ai goal complete <slug-or-path>\n');
+  }
+
+  const root = resolveRoot(options);
+  const activePath = resolveGoalPath(root, slug, 'active');
+  if (!fs.existsSync(activePath)) {
+    return fail(`Goal not found: ${activePath}\n`);
+  }
+
+  const updated = fs.readFileSync(activePath, 'utf8')
+    .replace(/\*\*Status:\*\*\s*[^\n]+/, '**Status:** completed')
+    .replace(/\*\*Last updated:\*\*\s*[^\n]+/, `**Last updated:** ${new Date().toISOString().slice(0, 10)}`);
+  const completedPath = path.join(root, '.ai/goals/completed', path.basename(activePath));
+  fs.mkdirSync(path.dirname(completedPath), { recursive: true });
+  fs.writeFileSync(completedPath, updated);
+  fs.rmSync(activePath);
+  return ok(`Completed goal: ${completedPath}\n`);
+}
+
 function installPack(options) {
   const packName = options._[0];
   const root = resolveRoot(options);
@@ -741,6 +849,231 @@ function storyFiles(root, state) {
   return listMarkdown(path.join(root, '.ai/stories', state)).filter((fileName) => !fileName.startsWith('_'));
 }
 
+function summarizeGoals(root) {
+  return {
+    active: listMarkdown(path.join(root, '.ai/goals/active')),
+    completed: listMarkdown(path.join(root, '.ai/goals/completed')),
+  };
+}
+
+function goalSource(root, options) {
+  if (options['from-spec']) {
+    const sourcePath = path.resolve(root, options['from-spec']);
+    if (!fs.existsSync(sourcePath)) {
+      return { error: `Spec not found: ${sourcePath}\n` };
+    }
+    const content = fs.readFileSync(sourcePath, 'utf8');
+    const title = stripLeadingKind(markdownTitle(content) || path.basename(sourcePath, '.md'));
+    const source = path.relative(root, sourcePath);
+    const objective = `Run a rigorous implementation of ${title} using the referenced .ai spec, capture evidence, and report honestly whether it satisfies the acceptance criteria.`;
+    return {
+      title,
+      display: source,
+      objective,
+      prompt: [
+        objective,
+        '',
+        'Requirements:',
+        `- Use ${source} as the authoritative product source.`,
+        '- Preserve the full objective across turns.',
+        '- Implement against the acceptance criteria instead of only the happy path.',
+        '- Capture test/build evidence and any relevant screenshots or reports.',
+        '- Do not mark complete until every acceptance criterion is verified from current-state evidence.',
+        '',
+        'Definition of done:',
+        '- The implementation exists in the repo.',
+        '- Relevant tests/build commands pass or failures are recorded.',
+        '- Acceptance criteria are checked one by one.',
+        '- Final analysis states what shipped and what remains.',
+      ].join('\n'),
+      constraints: [
+        `Use ${source} as the authoritative source.`,
+        'Do not shrink the objective to the current turn.',
+        'Do not mark complete until every acceptance criterion has evidence.',
+      ],
+      evidence: [
+        'Relevant test/build command output.',
+        'Changed files or linked PR.',
+        'Acceptance checklist with pass/fail notes.',
+      ],
+      done: [
+        'Implementation satisfies the referenced spec.',
+        'Tests/build commands are recorded.',
+        'Acceptance criteria are audited against current-state evidence.',
+      ],
+    };
+  }
+
+  if (options['from-story']) {
+    const sourcePath = path.resolve(root, options['from-story']);
+    if (!fs.existsSync(sourcePath)) {
+      return { error: `Story not found: ${sourcePath}\n` };
+    }
+    const content = fs.readFileSync(sourcePath, 'utf8');
+    const title = stripLeadingKind(markdownTitle(content) || path.basename(sourcePath, '.md'));
+    const source = path.relative(root, sourcePath);
+    const objective = `Run a rigorous implementation of ${title} using the referenced .ai story, capture evidence, and report honestly whether it is complete.`;
+    return {
+      title,
+      display: source,
+      objective,
+      prompt: [
+        objective,
+        '',
+        'Requirements:',
+        `- Use ${source} as the authoritative implementation slice.`,
+        '- Keep the story small and focused.',
+        '- Capture test/build evidence and update story evidence before completion.',
+        '- Do not mark complete until the story acceptance criteria are verified.',
+      ].join('\n'),
+      constraints: [
+        `Use ${source} as the authoritative story.`,
+        'Keep edits scoped to the story.',
+        'Do not mark complete without verification evidence.',
+      ],
+      evidence: [
+        'Story validation output.',
+        'Test/build command output.',
+        'Changed files and completion notes.',
+      ],
+      done: [
+        'Story acceptance criteria pass.',
+        'Story evidence is updated.',
+        'Story can be moved to done.',
+      ],
+    };
+  }
+
+  if (options['from-proof']) {
+    const proofDir = path.resolve(root, options['from-proof']);
+    const verdictPath = path.join(proofDir, 'verdict.json');
+    if (!fs.existsSync(verdictPath)) {
+      return { error: `Proof verdict not found: ${verdictPath}\n` };
+    }
+    const verdict = readJson(verdictPath);
+    const scenario = verdict.scenario || path.basename(proofDir);
+    const baseline = verdict.refs?.baseline || 'baseline';
+    const candidate = verdict.refs?.candidate || 'candidate';
+    const source = path.relative(root, proofDir);
+    const title = `${titleize(scenario)} Proof`;
+    const objective = `Run a rigorous ${scenario} proof run comparing baseline and candidate, capture product evidence, score the result, and report honestly whether the candidate builds a better final app.`;
+    return {
+      title,
+      display: source,
+      objective,
+      prompt: [
+        objective,
+        '',
+        'Refs:',
+        `- Baseline: ${baseline}`,
+        `- Candidate: ${candidate}`,
+        '',
+        'Requirements:',
+        `- Use ${source}/prompt.md, acceptance.md, rubric.json, and verdict.json as the proof sources.`,
+        '- Capture command evidence, acceptance results, screenshots when relevant, and rework notes.',
+        '- Complete and score verdict.json.',
+        '- Generate build-report.md.',
+        '- Do not mark complete until the proof artifacts are inspected and the verdict is honest.',
+      ].join('\n'),
+      constraints: [
+        `Baseline: ${baseline}`,
+        `Candidate: ${candidate}`,
+        'Use the same prompt, acceptance criteria, and scoring rubric.',
+        'Do not publish or claim victory unless the evidence supports it.',
+      ],
+      evidence: [
+        `${source}/verdict.json`,
+        `${source}/build-report.md`,
+        `${source}/evidence/ command outputs or screenshots`,
+      ],
+      done: [
+        'Baseline and candidate outputs exist or are explicitly recorded as unavailable.',
+        'verdict.json is complete and scored.',
+        'build-report.md states the outcome and limitations honestly.',
+      ],
+    };
+  }
+
+  if (options.objective) {
+    const title = titleize(options._[1]);
+    return {
+      title,
+      display: 'operator objective',
+      objective: options.objective,
+      prompt: [
+        options.objective,
+        '',
+        'Requirements:',
+        '- Preserve the full objective across turns.',
+        '- Use current repo state as authoritative.',
+        '- Capture evidence for every completion claim.',
+        '- Do not mark complete until current-state evidence proves every requirement.',
+      ].join('\n'),
+      constraints: [
+        'Preserve the full objective across turns.',
+        'Use current repo state as authoritative.',
+        'Do not mark complete without evidence.',
+      ],
+      evidence: [
+        'Relevant files, commands, tests, reports, or screenshots.',
+        'Completion audit notes.',
+      ],
+      done: [
+        'Objective is complete and verified.',
+        'Evidence proves completion requirement by requirement.',
+      ],
+    };
+  }
+
+  return { error: 'Goal source required: --from-spec, --from-story, --from-proof, or --objective\n' };
+}
+
+function renderGoal(goalData) {
+  return [
+    `# Goal: ${goalData.title}`,
+    '',
+    `**Status:** ${goalData.status}`,
+    `**Source:** ${goalData.source}`,
+    `**Created:** ${goalData.createdAt}`,
+    `**Last updated:** ${goalData.updatedAt}`,
+    '',
+    '## Objective',
+    goalData.objective,
+    '',
+    '## Codex /goal Prompt',
+    goalData.prompt,
+    '',
+    '## Constraints',
+    ...goalData.constraints.map((item) => `- ${item}`),
+    '',
+    '## Evidence Requirements',
+    ...goalData.evidence.map((item) => `- ${item}`),
+    '',
+    '## Definition of Done',
+    ...goalData.done.map((item) => `- [ ] ${item}`),
+    '',
+    '## Completion Audit',
+    'Before marking this goal complete, inspect current-state evidence for every requirement. Record whether the evidence proves completion, contradicts completion, is incomplete, or is missing.',
+    '',
+  ].join('\n');
+}
+
+function resolveGoalPath(root, slugOrPath, state) {
+  if (slugOrPath.endsWith('.md') || slugOrPath.includes(path.sep)) {
+    return path.resolve(root, slugOrPath);
+  }
+  return path.join(root, '.ai/goals', state, `${slugOrPath}.md`);
+}
+
+function markdownTitle(content) {
+  const match = content.match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : '';
+}
+
+function stripLeadingKind(title) {
+  return title.replace(/^(Spec|Story|Goal):\s*/i, '').trim();
+}
+
 function summarizeProofRuns(root) {
   const proofRoot = path.join(root, 'proof-runs');
   const summary = { total: 0, scored: [], unscored: [], invalid: [] };
@@ -769,7 +1102,7 @@ function summarizeProofRuns(root) {
   return summary;
 }
 
-function recommendNextAction(activeSpecs, storySummary) {
+function recommendNextAction(activeSpecs, storySummary, goalSummary = { active: [] }) {
   if (storySummary.files['in-progress'][0]) {
     return `Finish in-progress story ${storySummary.files['in-progress'][0]}`;
   }
@@ -778,6 +1111,9 @@ function recommendNextAction(activeSpecs, storySummary) {
   }
   if (storySummary.files.ready[0]) {
     return `Implement ready story ${storySummary.files.ready[0]}`;
+  }
+  if (goalSummary.active[0]) {
+    return `Continue active goal ${goalSummary.active[0]}`;
   }
   if (activeSpecs[0]) {
     return `Create an implementation story or plan for active spec ${activeSpecs[0]}`;
@@ -1082,6 +1418,8 @@ async function run(argv) {
       return prove(options);
     case 'story':
       return story(options);
+    case 'goal':
+      return goal(options);
     case 'pack':
       if (options._[0] === 'install') {
         options._.shift();
@@ -1099,6 +1437,7 @@ async function run(argv) {
         '  status                       Show active specs, stories, proof runs, blockers, and next action',
         '  score <spec>                 Score spec/artifact readiness',
         '  story create|validate|done|next',
+        '  goal create|status|complete  Compile .ai artifacts into Codex /goal handoffs',
         '  prove <scenario>             Create a proof run',
         '  prove run <dir>              Record one command as proof evidence',
         '  prove auto <scenario>        Record the same command against baseline and candidate dirs',
