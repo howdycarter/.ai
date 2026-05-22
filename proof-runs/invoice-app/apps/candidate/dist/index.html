@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ledgerlight Invoice Proof</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <h1>Ledgerlight</h1>
+            <p>Freelancer invoices with clear status, careful totals, and public-safe summaries.</p>
+          </div>
+          <button id="copy" type="button">Prepare summary</button>
+        </header>
+
+        <section class="invoice-grid">
+          <article class="panel invoice-panel">
+            <div class="invoice-head">
+              <div>
+                <span>Client</span>
+                <strong id="client"></strong>
+              </div>
+              <div>
+                <span>Invoice</span>
+                <strong id="number"></strong>
+              </div>
+              <div>
+                <span>Due</span>
+                <strong id="due"></strong>
+              </div>
+              <div>
+                <span>Status</span>
+                <strong id="status"></strong>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr><th>Line item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
+              </thead>
+              <tbody id="items"></tbody>
+            </table>
+
+            <div class="state-strip">
+              <p id="empty-state"></p>
+              <p id="saving-state"></p>
+            </div>
+          </article>
+
+          <aside class="panel totals-panel">
+            <h2>Totals</h2>
+            <p><span>Subtotal</span><strong id="subtotal"></strong></p>
+            <p><span>Tax</span><strong id="tax"></strong></p>
+            <p><span>Adjustment</span><strong id="adjustment"></strong></p>
+            <p class="grand"><span>Total</span><strong id="total"></strong></p>
+          </aside>
+        </section>
+
+        <section id="status-board" class="status-board" aria-label="Invoice status board"></section>
+
+        <section class="lower-grid">
+          <article class="panel">
+            <h2>Validation and Error States</h2>
+            <ul id="validation-state"></ul>
+            <p class="error" id="error-state"></p>
+          </article>
+
+          <article class="panel">
+            <h2>Public-Safe Summary</h2>
+            <p id="copy-status">Private notes are excluded from this shareable summary.</p>
+            <textarea id="summary" aria-label="Public-safe invoice summary"></textarea>
+          </article>
+
+          <article class="panel">
+            <h2>Before Real Client Use</h2>
+            <ul id="readiness"></ul>
+          </article>
+        </section>
+      </section>
+    </main>
+    <script src="src/invoice.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>

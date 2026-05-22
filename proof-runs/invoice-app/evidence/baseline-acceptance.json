@@ -1,0 +1,69 @@
+{
+  "app": "baseline",
+  "checkedAt": "2026-05-22T02:56:02.941Z",
+  "passed": 3,
+  "total": 6,
+  "status": "fail",
+  "results": [
+    {
+      "name": "A1 create invoice with client, invoice number, due date, and line item",
+      "status": "pass",
+      "evidence": {
+        "clientName": "Northstar Studio",
+        "invoiceNumber": "INV-1007",
+        "dueDate": "2026-05-31",
+        "itemCount": 2
+      }
+    },
+    {
+      "name": "A2 calculate subtotal, tax/adjustment, and total without rounding surprises",
+      "status": "pass",
+      "evidence": {
+        "expected": {
+          "subtotalCents": 45525,
+          "taxCents": 3756,
+          "adjustmentCents": -1500,
+          "totalCents": 47781
+        },
+        "actual": {
+          "subtotalCents": 45525,
+          "taxCents": 3756,
+          "adjustmentCents": -1500,
+          "totalCents": 47781,
+          "displayTotal": "$477.81"
+        }
+      }
+    },
+    {
+      "name": "A3 separate draft, sent, paid, and overdue invoices",
+      "status": "pass",
+      "evidence": {
+        "draft": 1,
+        "sent": 1,
+        "paid": 1,
+        "overdue": 1
+      }
+    },
+    {
+      "name": "A4 include empty, loading/saving, validation, and error states",
+      "status": "fail",
+      "evidence": {
+        "states": []
+      }
+    },
+    {
+      "name": "A5 export or copy a public-safe invoice summary",
+      "status": "fail",
+      "evidence": {
+        "summary": "{\n  \"id\": \"inv-1007\",\n  \"clientName\": \"Northstar Studio\",\n  \"invoiceNumber\": \"INV-1007\",\n  \"dueDate\": \"2026-05-31\",\n  \"status\": \"sent\",\n  \"taxRate\": 0.0825,\n  \"adjustmentCents\": -1500,\n  \"privateNotes\": \"Do not share: client asked for a delayed payment reminder.\",\n  \"items\": [\n    {\n      \"description\": \"Design sprint\",\n      \"quantity\": 3,\n      \"rateCents\": 12500\n    },\n    {\n      \"description\": \"Hosting setup\",\n      \"quantity\": 1,\n      \"rateCents\": 8025\n    }\n  ],\n  \"totals\": {\n    \"subtotalCents\": 45525,\n    \"taxCents\": 3756,\n    \"adjustmentCents\": -1500,\n    \"totalCents\": 47781,\n    \"displayTotal\": \"$477.81\"\n  }\n}"
+      }
+    },
+    {
+      "name": "A6 explain what is needed before real payments or tax records",
+      "status": "fail",
+      "evidence": {
+        "readiness": []
+      }
+    }
+  ]
+}

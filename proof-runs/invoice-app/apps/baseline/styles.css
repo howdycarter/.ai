@@ -1,0 +1,102 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f6f7f9;
+  color: #20242a;
+  font-family: Arial, sans-serif;
+}
+
+.shell {
+  width: min(960px, calc(100% - 32px));
+  margin: 32px auto;
+}
+
+header,
+.invoice,
+table,
+.totals,
+.summary {
+  background: white;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
+h1 {
+  margin: 0 0 8px;
+}
+
+.invoice,
+.columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: left;
+}
+
+.totals {
+  margin-left: auto;
+  max-width: 360px;
+}
+
+.totals p {
+  display: flex;
+  justify-content: space-between;
+}
+
+.grand {
+  border-top: 1px solid #d1d5db;
+  font-size: 22px;
+  padding-top: 12px;
+}
+
+.column {
+  background: white;
+  border: 1px solid #dde1e7;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.column h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+  text-transform: capitalize;
+}
+
+button {
+  background: #2563eb;
+  border: 0;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+textarea {
+  display: block;
+  height: 160px;
+  margin-top: 12px;
+  width: 100%;
+}

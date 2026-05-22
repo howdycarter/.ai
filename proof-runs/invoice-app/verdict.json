@@ -1,0 +1,224 @@
+{
+  "formatVersion": "proof-run-0.1.0",
+  "scenario": "invoice-app",
+  "createdAt": "2026-05-22T02:41:03.201Z",
+  "refs": {
+    "baseline": "8a1dd01",
+    "candidate": "4294a02"
+  },
+  "commands": [
+    {
+      "ref": "baseline",
+      "command": "npm test && npm run build",
+      "cwd": "/Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/baseline",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 443,
+      "startedAt": "2026-05-22T02:46:27.959Z",
+      "stdout": "\n> invoice-proof-baseline@0.0.0 test\n> node --test test/*.test.js\n\n▶ baseline invoice app\n  ✔ calculates sample invoice totals (0.473875ms)\n  ✔ groups invoice statuses (0.091208ms)\n  ✔ creates a copyable summary (0.097625ms)\n  ✔ formats cents as money (0.037417ms)\n✔ baseline invoice app (1.227042ms)\nℹ tests 4\nℹ suites 1\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 72.190375\n\n> invoice-proof-baseline@0.0.0 build\n> node scripts/build.js\n\nBuilt baseline app at /Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/baseline/dist\n",
+      "stderr": ""
+    },
+    {
+      "ref": "candidate",
+      "command": "npm test && npm run build",
+      "cwd": "/Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/candidate",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 433,
+      "startedAt": "2026-05-22T02:46:28.402Z",
+      "stdout": "\n> invoice-proof-candidate@0.0.0 test\n> node --test test/*.test.js\n\n▶ candidate invoice app\n  ✔ calculates sample invoice totals with cent-safe values (0.549292ms)\n  ✔ groups draft, sent, paid, and overdue invoices (0.120292ms)\n  ✔ validates required fields and line-item data (0.0855ms)\n  ✔ creates a public-safe summary without private notes (0.112666ms)\n  ✔ names UI states and real-world readiness caveats (0.802084ms)\n✔ candidate invoice app (2.268333ms)\nℹ tests 5\nℹ suites 1\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 76.043792\n\n> invoice-proof-candidate@0.0.0 build\n> node scripts/build.js\n\nBuilt candidate app at /Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/candidate/dist\n",
+      "stderr": ""
+    },
+    {
+      "ref": "candidate",
+      "command": "npm run acceptance",
+      "cwd": "/Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/candidate",
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 186,
+      "startedAt": "2026-05-22T02:46:34.402Z",
+      "stdout": "\n> invoice-proof-candidate@0.0.0 acceptance\n> node ../../evaluate-app.js . --out ../../evidence/candidate-acceptance.json\n\nPASS A1 create invoice with client, invoice number, due date, and line item\nPASS A2 calculate subtotal, tax/adjustment, and total without rounding surprises\nPASS A3 separate draft, sent, paid, and overdue invoices\nPASS A4 include empty, loading/saving, validation, and error states\nPASS A5 export or copy a public-safe invoice summary\nPASS A6 explain what is needed before real payments or tax records\nAcceptance: 6/6\n",
+      "stderr": ""
+    },
+    {
+      "ref": "baseline",
+      "command": "npm run acceptance",
+      "cwd": "/Users/chris/Documents/.ai framework/proof-runs/invoice-app/apps/baseline",
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": 155,
+      "startedAt": "2026-05-22T02:56:02.797Z",
+      "stdout": "\n> invoice-proof-baseline@0.0.0 acceptance\n> node ../../evaluate-app.js . --out ../../evidence/baseline-acceptance.json\n\nPASS A1 create invoice with client, invoice number, due date, and line item\nPASS A2 calculate subtotal, tax/adjustment, and total without rounding surprises\nPASS A3 separate draft, sent, paid, and overdue invoices\nFAIL A4 include empty, loading/saving, validation, and error states\nFAIL A5 export or copy a public-safe invoice summary\nFAIL A6 explain what is needed before real payments or tax records\nAcceptance: 3/6\n",
+      "stderr": ""
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "A1",
+      "text": "A user can create an invoice with client name, invoice number, due date, and at least one line item.",
+      "baseline": "pass",
+      "candidate": "pass",
+      "notes": "Baseline: pass ({\"clientName\":\"Northstar Studio\",\"invoiceNumber\":\"INV-1007\",\"dueDate\":\"2026-05-31\",\"itemCount\":2}) | Candidate: pass ({\"clientName\":\"Northstar Studio\",\"invoiceNumber\":\"INV-1007\",\"dueDate\":\"2026-05-31\",\"itemCount\":2})"
+    },
+    {
+      "id": "A2",
+      "text": "The app calculates subtotal, tax or adjustment, and total without rounding surprises.",
+      "baseline": "pass",
+      "candidate": "pass",
+      "notes": "Baseline: pass ({\"expected\":{\"subtotalCents\":45525,\"taxCents\":3756,\"adjustmentCents\":-1500,\"totalCents\":47781},\"actual\":{\"subtotalCents\":45525,\"taxCents\":3756,\"adjustmentCents\":-1500,\"totalCents\":47781,\"displayTotal\":\"$477.81\"}}) | Candidate: pass ({\"expected\":{\"subtotalCents\":45525,\"taxCents\":3756,\"adjustmentCents\":-1500,\"totalCents\":47781},\"actual\":{\"subtotalCents\":45525,\"taxCents\":3756,\"adjustmentCents\":-1500,\"totalCents\":47781,\"display\":{\"subtotal\":\"$455.25\",\"tax\":\"$37.56\",\"adjustment\":\"-$15.00\",\"total\":\"$477.81\"}}})"
+    },
+    {
+      "id": "A3",
+      "text": "The app separates draft, sent, paid, and overdue invoices in a way that is easy to scan.",
+      "baseline": "pass",
+      "candidate": "pass",
+      "notes": "Baseline: pass ({\"draft\":1,\"sent\":1,\"paid\":1,\"overdue\":1}) | Candidate: pass ({\"draft\":1,\"sent\":1,\"paid\":1,\"overdue\":1})"
+    },
+    {
+      "id": "A4",
+      "text": "The app includes empty, loading or saving, validation, and error states where the workflow needs them.",
+      "baseline": "fail",
+      "candidate": "pass",
+      "notes": "Baseline: fail ({\"states\":[]}) | Candidate: pass ({\"states\":[\"empty\",\"saving\",\"validation\",\"error\",\"populated\"]})"
+    },
+    {
+      "id": "A5",
+      "text": "The app can export or copy a public-safe invoice summary.",
+      "baseline": "fail",
+      "candidate": "pass",
+      "notes": "Baseline: fail ({\"summary\":\"{\\n  \\\"id\\\": \\\"inv-1007\\\",\\n  \\\"clientName\\\": \\\"Northstar Studio\\\",\\n  \\\"invoiceNumber\\\": \\\"INV-1007\\\",\\n  \\\"dueDate\\\": \\\"2026-05-31\\\",\\n  \\\"status\\\": \\\"sent\\\",\\n  \\\"taxRate\\\": 0.0825,\\n  \\\"adjustmentCents\\\": -1500,\\n  \\\"privateNotes\\\": \\\"Do not share: client asked for a delayed payment reminder.\\\",\\n  \\\"items\\\": [\\n    {\\n      \\\"description\\\": \\\"Design sprint\\\",\\n      \\\"quantity\\\": 3,\\n      \\\"rateCents\\\": 12500\\n    },\\n    {\\n      \\\"description\\\": \\\"Hosting setup\\\",\\n      \\\"quantity\\\": 1,\\n      \\\"rateCents\\\": 8025\\n    }\\n  ],\\n  \\\"totals\\\": {\\n    \\\"subtotalCents\\\": 45525,\\n    \\\"taxCents\\\": 3756,\\n    \\\"adjustmentCents\\\": -1500,\\n    \\\"totalCents\\\": 47781,\\n    \\\"displayTotal\\\": \\\"$477.81\\\"\\n  }\\n}\"}) | Candidate: pass ({\"summary\":\"INV-1007 for Northstar Studio\\nDue 2026-05-31\\nStatus: sent\\nSubtotal: $455.25\\nTax/adjustment: $37.56 / -$15.00\\nTotal: $477.81\\nPrivate notes excluded. Not a tax receipt.\"})"
+    },
+    {
+      "id": "A6",
+      "text": "The final build includes a short explanation of what would be needed before handling real payments or tax records.",
+      "baseline": "fail",
+      "candidate": "pass",
+      "notes": "Baseline: fail ({\"readiness\":[]}) | Candidate: pass ({\"readiness\":[\"Persistence: store clients, invoices, audit trail, and immutable invoice versions in a database.\",\"Payments: integrate a provider such as Stripe and reconcile paid status from webhooks, not manual toggles.\",\"Tax: confirm jurisdiction-specific tax treatment with accounting rules before using records for filing.\",\"Security: add authentication, authorization, backups, and export controls before real client data.\"]})"
+    }
+  ],
+  "scores": {
+    "readiness": {
+      "label": "Spec/artifact readiness",
+      "total": 6,
+      "max": 6,
+      "dimensions": [
+        {
+          "id": "spec-completeness",
+          "label": "Spec identifies actors, workflow, data, and exclusions",
+          "group": "readiness",
+          "weight": 3,
+          "baseline": 1,
+          "candidate": 3,
+          "notes": "Baseline used only the rough prompt; candidate used prompt, acceptance, rubric, and proof-app brief."
+        },
+        {
+          "id": "plan-executability",
+          "label": "Plan can be executed by an agent without guessing product intent",
+          "group": "readiness",
+          "weight": 3,
+          "baseline": 1,
+          "candidate": 3,
+          "notes": "Baseline had no explicit implementation plan or state/safety checklist; candidate had explicit proof targets and evidence requirements."
+        }
+      ],
+      "baselineTotal": 2,
+      "candidateTotal": 6,
+      "candidateDelta": 4
+    },
+    "finalOutcome": {
+      "label": "Final product outcome",
+      "total": 16,
+      "max": 16,
+      "dimensions": [
+        {
+          "id": "acceptance-coverage",
+          "label": "Final app satisfies the acceptance criteria",
+          "group": "finalOutcome",
+          "weight": 5,
+          "baseline": 3,
+          "candidate": 5,
+          "notes": "Shared evaluator: baseline 3/6, candidate 6/6."
+        },
+        {
+          "id": "workflow-usability",
+          "label": "Invoice workflow is clear for a real freelancer",
+          "group": "finalOutcome",
+          "weight": 4,
+          "baseline": 2,
+          "candidate": 4,
+          "notes": "Baseline is usable for a static invoice preview; candidate exposes states, status board, validation, summary, and readiness notes in one workflow."
+        },
+        {
+          "id": "financial-care",
+          "label": "Totals, statuses, and real-money caveats are handled responsibly",
+          "group": "finalOutcome",
+          "weight": 4,
+          "baseline": 2,
+          "candidate": 4,
+          "notes": "Both compute totals in cents; candidate also redacts private notes and names payment/tax/persistence caveats."
+        },
+        {
+          "id": "rework-cost",
+          "label": "Build required fewer clarification loops and manual fixes",
+          "group": "finalOutcome",
+          "weight": 3,
+          "baseline": 1,
+          "candidate": 3,
+          "notes": "Baseline would need remediation for three failed acceptance criteria; candidate needed no product acceptance remediation after evaluator run."
+        }
+      ],
+      "baselineTotal": 8,
+      "candidateTotal": 16,
+      "candidateDelta": 8
+    }
+  },
+  "rework": {
+    "baseline": [
+      "Failed A4: no explicit empty, loading/saving, validation, or error states exposed to evaluator.",
+      "Failed A5: copyable summary serialized the full invoice object and leaked privateNotes / Do not share content.",
+      "Failed A6: no readiness explanation for persistence, payments, or tax records."
+    ],
+    "candidate": [
+      "No product acceptance remediation required after shared evaluator: 6/6 acceptance passed.",
+      "Evidence capture caveat: parallel prove run calls can clobber verdict command entries; baseline acceptance command was rerun sequentially and preserved."
+    ]
+  },
+  "artifacts": {
+    "prompt": "prompt.md",
+    "acceptance": "acceptance.md",
+    "rubric": "rubric.json",
+    "screenshots": [
+      "evidence/screenshots/baseline-full.png",
+      "evidence/screenshots/baseline-mobile.png",
+      "evidence/screenshots/candidate-full.png",
+      "evidence/screenshots/candidate-mobile.png"
+    ],
+    "pullRequests": [],
+    "apps": {
+      "baseline": "apps/baseline",
+      "candidate": "apps/candidate"
+    },
+    "workflow": {
+      "baseline": "workflow/baseline-old-ai.md",
+      "candidate": "workflow/candidate-new-ai.md"
+    },
+    "acceptanceReports": {
+      "baseline": "evidence/baseline-acceptance.json",
+      "candidate": "evidence/candidate-acceptance.json"
+    }
+  },
+  "verdict": "Candidate wins this first invoice-app proof run: both builds passed their own tests and builds, but the baseline passed 3/6 shared acceptance checks while the candidate passed 6/6. The result supports the narrower claim that the new .ai proof/acceptance context produced a more complete invoice product in this run. It does not yet prove universal superiority because the same agent built both apps and the test was not blinded.",
+  "acceptanceSummary": {
+    "baseline": {
+      "pass": 3,
+      "partial": 0,
+      "fail": 3
+    },
+    "candidate": {
+      "pass": 6,
+      "partial": 0,
+      "fail": 0
+    }
+  },
+  "scoredAt": "2026-05-22T02:56:44.862Z"
+}

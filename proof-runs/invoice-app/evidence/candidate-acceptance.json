@@ -1,0 +1,85 @@
+{
+  "app": "candidate",
+  "checkedAt": "2026-05-22T02:46:34.577Z",
+  "passed": 6,
+  "total": 6,
+  "status": "pass",
+  "results": [
+    {
+      "name": "A1 create invoice with client, invoice number, due date, and line item",
+      "status": "pass",
+      "evidence": {
+        "clientName": "Northstar Studio",
+        "invoiceNumber": "INV-1007",
+        "dueDate": "2026-05-31",
+        "itemCount": 2
+      }
+    },
+    {
+      "name": "A2 calculate subtotal, tax/adjustment, and total without rounding surprises",
+      "status": "pass",
+      "evidence": {
+        "expected": {
+          "subtotalCents": 45525,
+          "taxCents": 3756,
+          "adjustmentCents": -1500,
+          "totalCents": 47781
+        },
+        "actual": {
+          "subtotalCents": 45525,
+          "taxCents": 3756,
+          "adjustmentCents": -1500,
+          "totalCents": 47781,
+          "display": {
+            "subtotal": "$455.25",
+            "tax": "$37.56",
+            "adjustment": "-$15.00",
+            "total": "$477.81"
+          }
+        }
+      }
+    },
+    {
+      "name": "A3 separate draft, sent, paid, and overdue invoices",
+      "status": "pass",
+      "evidence": {
+        "draft": 1,
+        "sent": 1,
+        "paid": 1,
+        "overdue": 1
+      }
+    },
+    {
+      "name": "A4 include empty, loading/saving, validation, and error states",
+      "status": "pass",
+      "evidence": {
+        "states": [
+          "empty",
+          "saving",
+          "validation",
+          "error",
+          "populated"
+        ]
+      }
+    },
+    {
+      "name": "A5 export or copy a public-safe invoice summary",
+      "status": "pass",
+      "evidence": {
+        "summary": "INV-1007 for Northstar Studio\nDue 2026-05-31\nStatus: sent\nSubtotal: $455.25\nTax/adjustment: $37.56 / -$15.00\nTotal: $477.81\nPrivate notes excluded. Not a tax receipt."
+      }
+    },
+    {
+      "name": "A6 explain what is needed before real payments or tax records",
+      "status": "pass",
+      "evidence": {
+        "readiness": [
+          "Persistence: store clients, invoices, audit trail, and immutable invoice versions in a database.",
+          "Payments: integrate a provider such as Stripe and reconcile paid status from webhooks, not manual toggles.",
+          "Tax: confirm jurisdiction-specific tax treatment with accounting rules before using records for filing.",
+          "Security: add authentication, authorization, backups, and export controls before real client data."
+        ]
+      }
+    }
+  ]
+}

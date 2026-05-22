@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Invoice Desk Baseline</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1>Invoice Desk</h1>
+        <p>Simple invoices for freelancers.</p>
+      </header>
+
+      <section class="invoice">
+        <div>
+          <span>Client</span>
+          <strong id="client"></strong>
+        </div>
+        <div>
+          <span>Invoice</span>
+          <strong id="number"></strong>
+        </div>
+        <div>
+          <span>Due</span>
+          <strong id="due"></strong>
+        </div>
+      </section>
+
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Rate</th><th>Line</th></tr>
+        </thead>
+        <tbody id="items"></tbody>
+      </table>
+
+      <section class="totals">
+        <p>Subtotal <strong id="subtotal"></strong></p>
+        <p>Tax <strong id="tax"></strong></p>
+        <p>Adjustment <strong id="adjustment"></strong></p>
+        <p class="grand">Total <strong id="total"></strong></p>
+      </section>
+
+      <section id="columns" class="columns" aria-label="Invoice statuses"></section>
+
+      <section class="summary">
+        <button id="copy" type="button">Copy summary</button>
+        <textarea id="summary" aria-label="Invoice summary"></textarea>
+      </section>
+    </main>
+    <script src="src/invoice.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>

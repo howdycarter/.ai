@@ -1,0 +1,247 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f2ee;
+  --ink: #1d2522;
+  --muted: #65706b;
+  --panel: #fffdf8;
+  --line: #d9d2c4;
+  --accent: #16635b;
+  --accent-2: #b7791f;
+  --danger: #a23b3b;
+  --shadow: 0 18px 40px rgba(29, 37, 34, 0.11);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.workspace {
+  margin: 0 auto;
+  max-width: 1180px;
+}
+
+.topbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+p,
+li,
+td,
+th,
+textarea,
+button {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.topbar p,
+span,
+.status-card p,
+#copy-status {
+  color: var(--muted);
+}
+
+button {
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.invoice-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+}
+
+.invoice-head {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+span {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 4px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 10px;
+  text-align: left;
+}
+
+.state-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.state-strip p,
+.error {
+  background: #f8f0de;
+  border: 1px solid #ead5a8;
+  border-radius: 8px;
+  margin: 0;
+  padding: 12px;
+}
+
+.error {
+  background: #fff1f1;
+  border-color: #ecc2c2;
+  color: var(--danger);
+}
+
+.totals-panel p {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.totals-panel .grand {
+  border-top: 1px solid var(--line);
+  font-size: 20px;
+  margin-bottom: 0;
+  padding-top: 16px;
+}
+
+.status-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.status-card {
+  align-items: center;
+  background: #1d2522;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  min-height: 112px;
+  padding: 18px;
+}
+
+.status-card h2 {
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.status-card p {
+  color: #cbd5d1;
+  margin: 0;
+}
+
+.status-card strong {
+  color: #f8d67a;
+  font-size: 42px;
+}
+
+.status-card.overdue {
+  background: #6e2e2e;
+}
+
+.lower-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 18px;
+}
+
+ul {
+  margin-bottom: 0;
+  padding-left: 18px;
+}
+
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  display: block;
+  min-height: 178px;
+  padding: 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .topbar,
+  .invoice-grid,
+  .lower-grid,
+  .status-board,
+  .invoice-head,
+  .state-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: stretch;
+    display: grid;
+  }
+}
