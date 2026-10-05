@@ -440,6 +440,6 @@ MIT — use it however you want, for any purpose.
 
 ---
 
-*Created by [Christopher Carter](https://howdycarter.com) · VP Product Manager, AI at JPMorgan Chase*
+*Created by [Christopher Carter](https://howdycarter.com)*
 
 *The ticket is dead. The spec is alive. The context engineer is the new builder. And `.ai/` is their workspace.*
